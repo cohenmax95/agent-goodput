@@ -65,6 +65,15 @@ class InstallerTests(unittest.TestCase):
             install(source, home, apply=True)
             target = home / "plugins" / "agent-goodput"
             self.assertTrue((target / ".codex-plugin" / "plugin.json").exists())
+            marketplace = json.loads(
+                (home / "plugins" / "marketplace.json").read_text(encoding="utf-8")
+            )
+            entry = next(item for item in marketplace["plugins"] if item["name"] == "agent-goodput")
+            self.assertEqual("./.agents/plugins/agent-goodput", entry["source"]["path"])
+            self.assertEqual(
+                target.resolve(),
+                (home.parent / entry["source"]["path"]).resolve(),
+            )
             hooks = json.loads((target / "hooks" / "hooks.json").read_text(encoding="utf-8"))
             commands = [
                 hook["command"]
@@ -109,6 +118,34 @@ class InstallerTests(unittest.TestCase):
             self.assertTrue(removal.apply_allowed)
             uninstall(home, apply=True)
             self.assertFalse(target.exists())
+
+    def test_legacy_marketplace_entry_is_migrated_when_install_is_owned(self) -> None:
+        source = Path(__file__).resolve().parents[1]
+        with tempfile.TemporaryDirectory() as directory:
+            home = Path(directory) / ".agents"
+            install(source, home, apply=True)
+            marketplace_path = home / "plugins" / "marketplace.json"
+            marketplace = json.loads(marketplace_path.read_text(encoding="utf-8"))
+            entry = next(item for item in marketplace["plugins"] if item["name"] == "agent-goodput")
+            entry["source"]["path"] = "./agent-goodput"
+            marketplace_path.write_text(
+                json.dumps(marketplace, indent=2) + "\n",
+                encoding="utf-8",
+            )
+
+            preview = install(source, home, apply=False)
+            self.assertTrue(preview.apply_allowed)
+            self.assertIn("update personal marketplace entry", preview.actions)
+            install(source, home, apply=True)
+
+            migrated = json.loads(marketplace_path.read_text(encoding="utf-8"))
+            migrated_entry = next(
+                item for item in migrated["plugins"] if item["name"] == "agent-goodput"
+            )
+            self.assertEqual(
+                "./.agents/plugins/agent-goodput",
+                migrated_entry["source"]["path"],
+            )
 
     def test_modified_installed_file_is_preserved(self) -> None:
         source = Path(__file__).resolve().parents[1]

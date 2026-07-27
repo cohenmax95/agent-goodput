@@ -31,10 +31,10 @@ test("server-renders the evidence-first product page", async () => {
   const html = await response.text();
   assert.match(
     html,
-    /<title>Agent Goodput \| Verified token efficiency for Codex<\/title>/i,
+    /<title>Agent Goodput \| Quality-gated token routing for Codex<\/title>/i,
   );
-  assert.match(html, /Spend less reasoning\./);
-  assert.match(html, /Keep the result\./);
+  assert.match(html, /Test cheaper routes against/);
+  assert.match(html, /the same quality requirements\./);
   assert.match(html, /39\.6%/);
   assert.match(html, /29\.8%/);
   assert.match(html, /Rejected/);
@@ -44,11 +44,11 @@ test("server-renders the evidence-first product page", async () => {
   assert.match(html, /not an independently reproducible benchmark/);
   assert.match(html, /Failed work/);
   assert.match(html, /0 goodput/);
-  assert.match(html, /Every gate passes, or nothing changes\./);
-  assert.match(html, /Live Codex configuration left untouched/);
+  assert.match(html, /A route changes only after every gate passes\./);
+  assert.match(html, /Live installation is hash-owned and reversible/);
   assert.match(html, /they cannot replace the model for a task/);
   assert.match(html, /No evaluator means/);
-  assert.match(html, /og-card\.png/);
+  assert.match(html, /og\.png/);
   assert.match(html, /Skip to content/);
   assert.doesNotMatch(html, /Your site is taking shape/);
   assert.doesNotMatch(html, /react-loading-skeleton/);
@@ -64,7 +64,7 @@ test("keeps proof claims and accessibility safeguards in source", async () => {
 
   assert.match(page, /feature and method comparison, not a performance claim/);
   assert.match(page, /Current performance evidence compares one/);
-  assert.match(page, /not\s+installed into the live\s+Codex environment/);
+  assert.match(page, /tested live plugin\s+installation/);
   assert.match(page, /public and reproducible/);
   assert.match(page, /aria-label="Primary navigation"/);
   assert.match(page, /role="region"/);
@@ -74,5 +74,5 @@ test("keeps proof claims and accessibility safeguards in source", async () => {
   assert.doesNotMatch(page, /SkeletonPreview/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
   assert.doesNotMatch(layout, /example\.com(?!\.invalid)/);
-  await access(new URL("../public/og-card.png", import.meta.url));
+  await access(new URL("../public/og.png", import.meta.url));
 });

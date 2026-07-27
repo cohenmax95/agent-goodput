@@ -169,6 +169,7 @@ def _handle_stop(
             "already_continued": bool(payload.get("stop_hook_active", False)),
         },
     )
+    controller.run_cycle_if_needed(trigger="stop")
     return {}
 
 
@@ -192,7 +193,7 @@ def handle_hook(payload: dict[str, Any], *, root: Path | None = None) -> dict[st
                 "reason": (raw_reason if raw_reason in _SESSION_END_REASONS else "unrecognized"),
             },
         )
-        controller.run_cycle()
+        controller.run_cycle_if_needed(trigger="session-end")
     return {}
 
 

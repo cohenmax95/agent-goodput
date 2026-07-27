@@ -56,7 +56,9 @@ results](docs/NEGATIVE_RESULTS.md), and the [sanitized per-run
 evidence](benchmarks/results/README.md).
 
 These results do not prove savings on every repository, writing task, browser
-workflow, or production action. No live Codex policy was changed.
+workflow, or production action. The maintainer's Codex installation runs the
+plugin in observation and shadow mode. The plugin cannot replace the model for
+a task that is already running.
 
 ## The problem
 
@@ -141,10 +143,18 @@ Preview plugin installation:
 agp install
 ```
 
-Installation and policy mutation are dry-run by default. See [integration](docs/INTEGRATION.md) before applying either.
-After an intentional install, restart Codex, enable the personal plugin if
-needed, and use `/hooks` to review and trust the exact hook definitions. Codex
-does not let a third-party installer bypass that trust step.
+Installation and policy mutation are dry-run by default. See
+[integration](docs/INTEGRATION.md) before applying either. After reviewing the
+plan, install and enable the plugin:
+
+```bash
+agp install --apply
+codex plugin add agent-goodput@personal
+```
+
+Restart Codex if it was open, then use `/hooks` to review and trust the exact
+hook definitions. Codex does not let a third-party installer bypass that trust
+step.
 
 ## Quality gate
 
@@ -174,7 +184,7 @@ After an intentional plugin install, the hooks can:
 2. keep the policy target on the baseline while a candidate is in shadow;
 3. count selected tool events without retaining tool output;
 4. evaluate outcomes ingested by a verifier or benchmark adapter;
-5. evaluate every registered bucket at session end;
+5. run one bounded evaluation after new outcomes arrive at turn or session end;
 6. canary, promote, hold, or roll back from signed policy state.
 
 Outcome ingestion requires an evaluator or benchmark adapter. A generic hook
@@ -236,7 +246,8 @@ Hook telemetry uses digests, keyed project identifiers, allowlisted reason codes
 - [Prior art and clean-room policy](docs/PRIOR_ART.md)
 - [Limitations](docs/LIMITATIONS.md)
 - [Publication checklist](docs/PUBLICATION_CHECKLIST.md)
-- [Alpha release notes](docs/RELEASE_NOTES_0.1.0-alpha.1.md)
+- [Alpha.2 release notes](docs/RELEASE_NOTES_0.1.0-alpha.2.md)
+- [Alpha.1 release notes](docs/RELEASE_NOTES_0.1.0-alpha.1.md)
 - [Security policy](SECURITY.md)
 - [Contributing](CONTRIBUTING.md)
 - [Changelog](CHANGELOG.md)

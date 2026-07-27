@@ -60,6 +60,53 @@ class ControllerTests(unittest.TestCase):
             self.assertEqual("canary", result["transitions"][0]["to_status"])
             self.assertEqual("canary", controller.load().buckets["test"].status)
 
+    def test_unattended_cycle_runs_only_for_new_outcomes(self) -> None:
+        thresholds = PromotionThresholds(
+            min_pairs=6,
+            min_projects=2,
+            min_task_families=3,
+            bootstrap_iterations=500,
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            controller = PolicyController(directory, thresholds=thresholds)
+            controller.register_shadow("test", "terra-medium-bounded-read")
+            self.assertTrue(controller.run_cycle_if_needed(trigger="stop")["skipped"])
+
+            controller.evidence.append_many(paired_outcomes())
+            first = controller.run_cycle_if_needed(trigger="stop")
+            second = controller.run_cycle_if_needed(trigger="session-end")
+
+            self.assertFalse(first["skipped"])
+            self.assertEqual("canary", first["transitions"][0]["to_status"])
+            self.assertTrue(second["skipped"])
+            self.assertEqual("no-new-outcomes", second["reason"])
+
+    def test_tampered_cycle_marker_cannot_suppress_evaluation(self) -> None:
+        thresholds = PromotionThresholds(
+            min_pairs=6,
+            min_projects=2,
+            min_task_families=3,
+            bootstrap_iterations=500,
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            controller = PolicyController(directory, thresholds=thresholds)
+            controller.register_shadow("test", "terra-medium-bounded-read")
+            controller.evidence.append_many(paired_outcomes())
+            controller.cycle_path.write_text(
+                json.dumps(
+                    {
+                        "payload": {"outcome_cursor": controller.evidence.outcome_cursor},
+                        "signature": "invalid",
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            result = controller.run_cycle_if_needed(trigger="stop")
+
+            self.assertFalse(result["skipped"])
+            self.assertEqual("canary", controller.load().buckets["test"].status)
+
 
 class HookTests(unittest.TestCase):
     def test_prompt_hook_returns_one_compact_certificate(self) -> None:
@@ -99,6 +146,35 @@ class HookTests(unittest.TestCase):
             )
             database = root / "evidence.sqlite3"
             self.assertNotIn("unique private output", database.read_bytes().decode("latin1"))
+
+    def test_stop_hook_runs_cycle_after_new_outcomes(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "state"
+            controller = PolicyController(
+                root,
+                thresholds=PromotionThresholds(
+                    min_pairs=6,
+                    min_projects=2,
+                    min_task_families=3,
+                    bootstrap_iterations=500,
+                ),
+            )
+            controller.register_shadow("test", "terra-medium-bounded-read")
+            controller.evidence.append_many(paired_outcomes(pairs=30))
+
+            handle_hook(
+                {
+                    "hook_event_name": "Stop",
+                    "session_id": "session",
+                    "turn_id": "turn",
+                    "model": "gpt-5.6-sol",
+                },
+                root=root,
+            )
+
+            self.assertEqual("canary", PolicyController(root).load().buckets["test"].status)
+            events = list(EvidenceStore(root / "evidence.sqlite3").events())
+            self.assertIn("controller_cycle_completed", {item["event_type"] for item in events})
 
     def test_session_end_reason_is_allowlisted(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

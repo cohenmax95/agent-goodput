@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import sqlite3
 import tempfile
 import unittest
@@ -61,6 +62,14 @@ class EvidenceTests(unittest.TestCase):
             store.append_many(paired_outcomes(pairs=1))
             self.assertTrue(store.verify_chain()[0])
             self.assertEqual(2, len(store.outcomes(bucket="test")))
+            self.assertEqual(store.cursor, store.outcome_cursor)
+
+    @unittest.skipIf(os.name == "nt", "POSIX file modes are not portable to Windows")
+    def test_database_is_private(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "evidence.sqlite3"
+            EvidenceStore(path)
+            self.assertEqual(0o600, path.stat().st_mode & 0o777)
 
     def test_tamper_is_detected(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

@@ -8,6 +8,7 @@ from .evidence import EvidenceStore
 from .policy import BucketPolicy, PolicySnapshot
 from .stats import PromotionThresholds, evaluate_promotion
 from .util import (
+    file_lock,
     load_or_create_secret,
     read_json,
     sign_value,
@@ -32,6 +33,8 @@ class PolicyController:
         self.root.mkdir(parents=True, exist_ok=True)
         self.policy_path = self.root / "policy.json"
         self.history_dir = self.root / "policy-history"
+        self.cycle_path = self.root / "controller-cycle.json"
+        self.cycle_lock_path = self.root / "controller-cycle.lock"
         self.secret = load_or_create_secret(self.root)
         self.evidence = EvidenceStore(self.root / "evidence.sqlite3")
         self.thresholds = thresholds or PromotionThresholds()
@@ -208,9 +211,7 @@ class PolicyController:
         )
         return updated
 
-    def run_cycle(self) -> dict[str, Any]:
-        """Evaluate every registered bucket and apply only gated transitions."""
-
+    def _run_cycle_unlocked(self) -> dict[str, Any]:
         before = self.load()
         transitions: list[dict[str, Any]] = []
         held: list[dict[str, Any]] = []
@@ -238,3 +239,94 @@ class PolicyController:
             "held": held,
             "evidence_cursor": self.evidence.cursor,
         }
+
+    def _last_cycle_outcome_cursor(self) -> int:
+        envelope = read_json(self.cycle_path)
+        if not isinstance(envelope, dict):
+            return 0
+        payload = envelope.get("payload")
+        signature = envelope.get("signature")
+        if not isinstance(payload, dict) or not isinstance(signature, str):
+            return 0
+        if not verify_signature(payload, signature, self.secret):
+            return 0
+        cursor = payload.get("outcome_cursor")
+        if isinstance(cursor, bool) or not isinstance(cursor, int) or cursor < 0:
+            return 0
+        return cursor
+
+    def _record_cycle(
+        self,
+        result: dict[str, Any],
+        *,
+        outcome_cursor: int,
+        trigger: str,
+    ) -> dict[str, Any]:
+        sequence, _ = self.evidence.append_event(
+            "controller_cycle_completed",
+            {
+                "trigger": trigger,
+                "outcome_cursor": outcome_cursor,
+                "started_policy_version": result["started_policy_version"],
+                "completed_policy_version": result["completed_policy_version"],
+                "transition_count": len(result["transitions"]),
+                "held_count": len(result["held"]),
+            },
+        )
+        payload = {
+            "outcome_cursor": outcome_cursor,
+            "completed_policy_version": result["completed_policy_version"],
+            "completion_event_seq": sequence,
+            "completed_at": utc_now(),
+        }
+        write_json(
+            self.cycle_path,
+            {
+                "payload": payload,
+                "signature": sign_value(payload, self.secret),
+            },
+        )
+        return {
+            **result,
+            "skipped": False,
+            "trigger": trigger,
+            "evidence_cursor": self.evidence.cursor,
+        }
+
+    def run_cycle(self, *, trigger: str = "manual") -> dict[str, Any]:
+        """Evaluate every registered bucket and apply only gated transitions."""
+
+        with file_lock(self.cycle_lock_path):
+            outcome_cursor = self.evidence.outcome_cursor
+            result = self._run_cycle_unlocked()
+            return self._record_cycle(
+                result,
+                outcome_cursor=outcome_cursor,
+                trigger=trigger,
+            )
+
+    def run_cycle_if_needed(self, *, trigger: str) -> dict[str, Any]:
+        """Run once for each new set of verified outcomes.
+
+        Turn and session hooks may both fire for the same work. The signed
+        outcome cursor makes the second call a cheap no-op and prevents a
+        modified marker from silently suppressing evaluation.
+        """
+
+        with file_lock(self.cycle_lock_path):
+            outcome_cursor = self.evidence.outcome_cursor
+            last_outcome_cursor = self._last_cycle_outcome_cursor()
+            if outcome_cursor == last_outcome_cursor:
+                return {
+                    "skipped": True,
+                    "trigger": trigger,
+                    "reason": "no-new-outcomes",
+                    "outcome_cursor": outcome_cursor,
+                    "evidence_cursor": self.evidence.cursor,
+                }
+            result = self._run_cycle_unlocked()
+            return self._record_cycle(
+                result,
+                outcome_cursor=outcome_cursor,
+                trigger=trigger,
+            )

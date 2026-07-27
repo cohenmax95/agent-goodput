@@ -127,7 +127,24 @@ def bundle_files(source_root: str | Path | None = None) -> dict[str, Path]:
     return _source_files(source)
 
 
-def _marketplace_entry() -> dict[str, Any]:
+def _marketplace_entry(agents_home: Path) -> dict[str, Any]:
+    target = agents_home / "plugins" / "agent-goodput"
+    source_path = f"./{target.relative_to(agents_home.parent).as_posix()}"
+    return {
+        "name": "agent-goodput",
+        "source": {
+            "source": "local",
+            "path": source_path,
+        },
+        "policy": {
+            "installation": "AVAILABLE",
+            "authentication": "ON_INSTALL",
+        },
+        "category": "Developer Tools",
+    }
+
+
+def _legacy_marketplace_entry() -> dict[str, Any]:
     return {
         "name": "agent-goodput",
         "source": {
@@ -201,8 +218,13 @@ def plan_install(
             actions.append(f"update {relative}")
     marketplace = _load_marketplace(marketplace_path)
     matching = [item for item in marketplace["plugins"] if item.get("name") == "agent-goodput"]
-    if matching:
-        if matching[0] != _marketplace_entry():
+    desired_entry = _marketplace_entry(home)
+    if len(matching) > 1:
+        conflicts.append("preserve duplicate agent-goodput marketplace entries")
+    elif matching:
+        if matching[0] == _legacy_marketplace_entry() and ledger_path.exists():
+            actions.append("update personal marketplace entry")
+        elif matching[0] != desired_entry:
             conflicts.append("preserve conflicting agent-goodput marketplace entry")
     else:
         actions.append("add personal marketplace entry")
@@ -249,8 +271,16 @@ def install(
     }
     write_json(target / ".agent-goodput-install.json", ledger)
     marketplace = _load_marketplace(marketplace_path)
-    if not any(item.get("name") == "agent-goodput" for item in marketplace["plugins"]):
-        marketplace["plugins"].append(_marketplace_entry())
+    matching = [
+        index
+        for index, item in enumerate(marketplace["plugins"])
+        if item.get("name") == "agent-goodput"
+    ]
+    desired_entry = _marketplace_entry(Path(agents_home).expanduser().resolve())
+    if matching:
+        marketplace["plugins"][matching[0]] = desired_entry
+    else:
+        marketplace["plugins"].append(desired_entry)
     write_json(marketplace_path, marketplace, mode=0o644)
     return plan
 

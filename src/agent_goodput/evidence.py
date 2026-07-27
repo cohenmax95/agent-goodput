@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sqlite3
 from collections.abc import Generator, Iterable, Iterator
 from contextlib import contextmanager
@@ -47,6 +48,7 @@ class EvidenceStore:
         self.path = Path(path).expanduser().resolve()
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self._initialize()
+        os.chmod(self.path, 0o600)
 
     def _connect(self) -> sqlite3.Connection:
         connection = sqlite3.connect(self.path, timeout=10)
@@ -109,6 +111,14 @@ class EvidenceStore:
     def cursor(self) -> int:
         with self._connection() as connection:
             row = connection.execute("SELECT COALESCE(MAX(seq), 0) AS seq FROM events").fetchone()
+            return int(row["seq"])
+
+    @property
+    def outcome_cursor(self) -> int:
+        with self._connection() as connection:
+            row = connection.execute(
+                "SELECT COALESCE(MAX(event_seq), 0) AS seq FROM outcomes"
+            ).fetchone()
             return int(row["seq"])
 
     @property

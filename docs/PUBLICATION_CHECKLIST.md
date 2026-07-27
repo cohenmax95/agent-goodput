@@ -56,8 +56,10 @@ Do not publish from an automated task. Publication requires an explicit human de
 
 ## Safety
 
-- [x] Live Codex configuration still matches the frozen pre-development hashes.
-- [x] No global plugin installation occurred during development.
+- [x] Live Codex changes are limited to explicit plugin enablement and reviewed
+      hook-trust hashes.
+- [x] The pre-install configuration snapshot and managed ownership ledger are
+      available for rollback.
 - [x] Default policy remains Sol High.
 - [x] Cheaper routes start in shadow.
 - [x] Automatic transition requires fresh evidence at every phase.

@@ -1,6 +1,6 @@
 {
   "name": "agent-goodput",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "description": "Measure and improve verified useful work per token with quality-gated routing, context audits, delegation controls, paired benchmarks, and automatic rollback.",
   "author": {
     "name": "Max Cohen"

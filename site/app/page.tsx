@@ -2,57 +2,57 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Agent Goodput | Verified token efficiency for Codex",
+    absolute: "Agent Goodput | Quality-gated token routing for Codex",
   },
   description:
-    "A quality-gated control layer that saves tokens only when verified work survives.",
+    "Measures the full Codex route and permits cheaper policies only after task-specific quality checks pass.",
 };
 
 const proofChecks = [
-  "Every task has deterministic obligations",
-  "Critical failures erase the quality score",
-  "Failed work keeps every token in the denominator",
-  "Cheaper routes start in shadow",
-  "Fresh evidence is required at every phase",
+  "Each benchmark task defines deterministic obligations",
+  "A critical failure sets verified work to zero",
+  "Tokens from failed attempts still count",
+  "Candidate routes begin in shadow mode",
+  "Each promotion phase requires fresh evidence",
 ];
 
 const controlLoop = [
   {
     number: "01",
     label: "Classify",
-    title: "Measure the task before choosing a route",
-    body: "Risk, scope, sensitivity, complexity, and deterministic work are identified without asking a model.",
+    title: "Classify task risk without a model",
+    body: "Local rules identify scope, sensitivity, complexity, and deterministic work before a route is considered.",
   },
   {
     number: "02",
     label: "Compile",
-    title: "Load only the context that earns its place",
-    body: "Required instructions stay intact. Conditional and optional packets are measured, deduplicated, and budgeted.",
+    title: "Measure required, conditional, and optional context",
+    body: "Required instructions stay intact. Other packets are measured, deduplicated, and loaded only when the task needs them.",
   },
   {
     number: "03",
     label: "Route",
-    title: "Try cheaper work only inside a safe envelope",
-    body: "Bounded low-risk tasks may enter shadow evaluation. High-stakes work stays on Sol High.",
+    title: "Keep high-risk work on Sol High",
+    body: "Only bounded, low-risk work can enter shadow evaluation on a cheaper candidate route.",
   },
   {
     number: "04",
     label: "Verify",
-    title: "Score obligations, not confidence",
-    body: "The evaluator checks citations, conclusions, safety rules, and task-specific facts outside the candidate answer.",
+    title: "Check task-specific obligations",
+    body: "A separate evaluator checks citations, conclusions, safety rules, and required facts outside the candidate answer.",
   },
   {
     number: "05",
     label: "Promote",
-    title: "Require statistical evidence before live use",
-    body: "Quality noninferiority, critical safety, provider telemetry, and token savings must all pass together.",
+    title: "Change policy only after the frozen gates pass",
+    body: "Quality noninferiority, zero critical failures, provider telemetry, and token savings must pass together.",
   },
 ];
 
 const mechanisms = [
   {
     title: "Context compiler",
-    body: "Measures global rules, project instructions, skills, tools, files, and prior context. Required material is never silently cut.",
+    body: "Measures global rules, project instructions, skills, tools, files, and prior context. It does not remove required material.",
     signal: "less repeated context",
   },
   {
@@ -72,8 +72,8 @@ const mechanisms = [
   },
   {
     title: "Conservative learning",
-    body: "Learns from verified outcomes, corrections, failures, and cost. New policies begin in shadow and can roll back.",
-    signal: "evidence before action",
+    body: "Updates policy from verified outcomes, corrections, failures, and cost. New policies begin in shadow and can roll back.",
+    signal: "verified changes only",
   },
 ];
 
@@ -128,30 +128,30 @@ export default function Home() {
           <div className="hero-copy">
             <p className="eyebrow">
               <span className="live-dot" aria-hidden="true" />
-              Quality-gated token efficiency for Codex
+              Measured token routing for Codex
             </p>
             <h1 id="hero-title">
-              Spend less reasoning.
-              <span>Keep the result.</span>
+              Test cheaper routes against
+              <span>the same quality requirements.</span>
             </h1>
             <p className="hero-lede">
-              Agent Goodput chooses context, prework, model effort, tools, and
-              delegation as one policy. Savings count only when the completed
-              work passes its obligations.
+              Agent Goodput measures context, deterministic work, model effort,
+              tools, and delegation as one route. A cheaper policy can advance
+              only after the finished work passes task-specific checks.
             </p>
             <div className="hero-actions">
               <a className="button button-primary" href="#evidence">
-                Inspect the evidence
+                Read the results
                 <span aria-hidden="true">↘</span>
               </a>
               <a className="button button-secondary" href="#method">
-                See the control loop
+                How it works
               </a>
               <a
                 className="button button-secondary"
                 href="https://github.com/cohenmax95/agent-goodput"
               >
-                View the source
+                Source code
               </a>
             </div>
             <dl className="hero-facts">
@@ -237,7 +237,7 @@ export default function Home() {
           <div className="section-heading">
             <div>
               <p className="section-kicker">Evidence ledger / 2026-07-26</p>
-              <h2>Two gates passed. Their scopes stay separate.</h2>
+              <h2>Two tests passed under different evidence limits.</h2>
             </div>
             <p>
               A private-workload shadow tests practical behavior. A public
@@ -336,14 +336,14 @@ export default function Home() {
                   <span className="decision rejected">Rejected</span>
                 </div>
                 <p>
-                  Two candidate critical failures blocked the result despite
-                  40.0% lower token use. The run was preserved and never
-                  rescored. Its failure shaped the fresh v6 contract.
+                  The candidate used 40.0% fewer raw tokens, but two critical
+                  failures blocked it. The run was preserved and the v6 test
+                  used a fresh, frozen contract.
                 </p>
               </article>
 
               <article className="result-card zero-card">
-                <p className="section-kicker">The rule that changes the math</p>
+                <p className="section-kicker">Failed tasks score zero</p>
                 <div className="zero-equation">
                   <span className="failed-task">failed task</span>
                   <span aria-hidden="true">→</span>
@@ -362,12 +362,12 @@ export default function Home() {
         <section className="section method-section" id="method">
           <div className="section-heading narrow-heading">
             <div>
-              <p className="section-kicker">The control loop</p>
-              <h2>Make the cheap path prove itself.</h2>
+              <p className="section-kicker">Policy lifecycle</p>
+              <h2>A cheaper route must pass the same checks.</h2>
             </div>
             <p>
-              No single trick is the system. The gain comes from controlling the
-              full route and verifying the finished result.
+              The controller measures the full route, then checks the finished
+              work against the task contract.
             </p>
           </div>
 
@@ -390,13 +390,13 @@ export default function Home() {
         <section className="section mechanisms-section">
           <div className="section-heading">
             <div>
-              <p className="section-kicker">Five mechanisms</p>
-              <h2>Remove waste without hiding risk.</h2>
+              <p className="section-kicker">Five controls</p>
+              <h2>Five controls reduce measured waste.</h2>
             </div>
             <p>
               The controller combines context, deterministic work, lexical
-              completion, delegation, and evidence. Each mechanism has an
-              explicit failure mode.
+              completion, delegation, and verified outcome data. Each control
+              has a defined failure condition.
             </p>
           </div>
 
@@ -417,10 +417,10 @@ export default function Home() {
         <section className="section gate-section" id="gates">
           <div className="gate-copy">
             <p className="section-kicker">Promotion contract</p>
-            <h2>Every gate passes, or nothing changes.</h2>
+            <h2>A route changes only after every gate passes.</h2>
             <p>
-              A route cannot advance on average quality, a good-looking answer,
-              or a single cheap run. Promotion is an all-of-these decision.
+              Average quality, one plausible answer, or a single cheap run
+              cannot advance a route.
             </p>
 
             <div className="goodput-formula" aria-label="Verified goodput formula">
@@ -465,13 +465,13 @@ export default function Home() {
         <section className="section scope-section" id="scope">
           <div className="section-heading">
             <div>
-              <p className="section-kicker">Competitive scope</p>
-              <h2>The missing layer is control.</h2>
+              <p className="section-kicker">What other tools cover</p>
+              <h2>Agent Goodput evaluates the combined route.</h2>
             </div>
             <p>
-              Existing projects solve valuable pieces of token efficiency.
-              Agent Goodput measures those pieces as inputs to one verified
-              policy instead of treating any one of them as the outcome.
+              Other projects reduce output, index repositories, route models,
+              or coordinate subagents. Agent Goodput treats those choices as
+              inputs and measures the verified result of the complete route.
             </p>
           </div>
 
@@ -508,12 +508,12 @@ export default function Home() {
         <section className="section trust-section">
           <div className="trust-card">
             <div>
-              <p className="section-kicker">Built for inspection</p>
-              <h2>The evidence survives without the conversation.</h2>
+              <p className="section-kicker">What the release records</p>
+              <h2>Claims stay tied to their evidence.</h2>
               <p>
                 Signed policy snapshots, a hash-chained local ledger, frozen
                 benchmark assets, rerunnable evaluators, and public payload
-                hashes make each claim inspectable.
+                hashes preserve the basis for each claim.
               </p>
             </div>
             <ul>
@@ -531,7 +531,7 @@ export default function Home() {
               </li>
               <li>
                 <span aria-hidden="true">04</span>
-                Live Codex configuration left untouched
+                Live installation is hash-owned and reversible
               </li>
               <li>
                 <span aria-hidden="true">05</span>
@@ -549,21 +549,21 @@ export default function Home() {
         </section>
 
         <section className="final-cta">
-          <p className="section-kicker">The standard</p>
+          <p className="section-kicker">Current release</p>
           <h2>
-            A token is saved only when
-            <span>the useful work survives.</span>
+            The release includes
+            <span>its evidence and limits.</span>
           </h2>
           <p>
-            Agent Goodput is a public alpha with one reproducible synthetic
-            confirmation and one passing private-workload shadow. It is not
-            installed into the live Codex environment.
+            This public alpha includes one reproducible synthetic confirmation,
+            one passing private-workload shadow, and a tested live plugin
+            installation. These results do not support a universal savings claim.
           </p>
           <a
             className="button button-primary"
             href="https://github.com/cohenmax95/agent-goodput"
           >
-            Inspect the repository
+            Open the repository
             <span aria-hidden="true">↗</span>
           </a>
         </section>
@@ -581,7 +581,7 @@ export default function Home() {
             Apache-2.0 public alpha
           </a>
         </p>
-        <p>Evidence before savings.</p>
+        <p>Public benchmark data and rejected runs are in the repository.</p>
       </footer>
     </>
   );

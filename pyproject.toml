@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agent-goodput"
-version = "0.1.0a1"
+version = "0.1.0a2"
 description = "Quality-gated optimization for agent model, context, tool, and delegation choices."
 readme = "README.md"
 requires-python = ">=3.11"

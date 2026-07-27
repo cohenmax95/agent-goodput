@@ -66,6 +66,12 @@ Apply only after reviewing the plan:
 agp install --apply
 ```
 
+Enable the installed personal plugin with the first-party Codex command:
+
+```bash
+codex plugin add agent-goodput@personal
+```
+
 The installer records ownership hashes. It refuses to overwrite unmanaged or
 modified files. Installed hook commands are pinned to the Python 3.11 or newer
 interpreter that ran the installer, so the Codex app does not fall back to an
@@ -75,9 +81,7 @@ environment.
 Codex deliberately requires one-time human trust for non-managed command hooks:
 
 1. restart Codex if it was open during installation;
-2. enable Agent Goodput from the personal plugin marketplace if it is not
-   already enabled;
-3. open `/hooks`, inspect the exact definitions, and trust them.
+2. open `/hooks`, inspect the exact definitions, and trust them.
 
 The installer does not bypass Codex hook trust. After this setup, the lifecycle
 observation and policy-state cycle can run without routine input. Route
@@ -95,8 +99,11 @@ If any installed file changed, uninstall stops and preserves it.
 
 ## Autonomous controller
 
-The `SessionEnd` hook runs one bounded policy cycle. Candidates begin in shadow.
-A transition occurs only when the configured paired evidence gate passes.
+The `Stop` hook checks for new verified outcomes and runs one bounded policy
+cycle only when they exist. A signed outcome cursor makes later `Stop` or
+`SessionEnd` hooks a cheap no-op until more outcomes arrive. Candidates begin
+in shadow. A transition occurs only when the configured paired evidence gate
+passes.
 
 This automates policy state, not model interception. Codex hooks do not provide
 a supported way to replace the model for a task that is already running. Use
@@ -121,8 +128,9 @@ agp policy evaluate "research:low:none:simple"
 agp policy cycle
 ```
 
-`policy cycle` is dry-run unless `--apply` is present. The plugin session-end
-cycle is the intended hands-off policy-state surface after installation.
+`policy cycle` is dry-run unless `--apply` is present. The plugin turn and
+session hooks are the intended hands-off policy-state surface after
+installation.
 
 ## Real-project rollout
 
