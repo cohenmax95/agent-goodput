@@ -1,0 +1,11 @@
+{
+  "phoneNumber": "+15555550100",
+  "voiceWebhook": "/api/twilio/voice/inbound-ivr",
+  "smsWebhook": "/api/twilio/sms",
+  "messagingService": {
+    "sid": "MG_SYNTHETIC",
+    "inboundRequestUrl": "/legacy/inbound",
+    "useInboundWebhookOnNumber": false
+  }
+}
+

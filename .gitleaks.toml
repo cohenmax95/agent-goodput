@@ -1,0 +1,10 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Sanitized benchmark run digests from the frozen source commit"
+targetRules = ["generic-api-key"]
+condition = "AND"
+regexTarget = "line"
+paths = ['''benchmarks/results/codex-confirmatory-v[12]\.json''']
+regexes = ['''^\s*"run_key": "[0-9a-f]{16}",?$''']

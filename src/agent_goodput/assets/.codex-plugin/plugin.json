@@ -1,0 +1,33 @@
+{
+  "name": "agent-goodput",
+  "version": "0.1.0",
+  "description": "Measure and improve verified useful work per token with quality-gated routing, context audits, delegation controls, paired benchmarks, and automatic rollback.",
+  "author": {
+    "name": "Max Cohen"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "agent-evaluation",
+    "codex",
+    "model-routing",
+    "quality-gates",
+    "token-efficiency"
+  ],
+  "skills": "./skills/",
+  "hooks": "./hooks/hooks.json",
+  "interface": {
+    "displayName": "Agent Goodput",
+    "shortDescription": "Save tokens only when verified quality holds",
+    "longDescription": "Agent Goodput measures task outcomes, context, tool calls, routing, and delegation. Cheaper policies begin in shadow mode and advance only after paired deterministic evaluations establish quality noninferiority and token savings.",
+    "developerName": "Max Cohen",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Read",
+      "Interactive"
+    ],
+    "defaultPrompt": [
+      "Audit this task's context and route, then show the quality gate and token evidence"
+    ],
+    "brandColor": "#C8FF6A"
+  }
+}

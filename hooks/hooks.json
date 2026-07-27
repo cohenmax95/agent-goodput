@@ -1,0 +1,51 @@
+{
+  "description": "Privacy-safe routing observation and quality-gated efficiency evidence.",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/env python3 -B \"$PLUGIN_ROOT/hooks/agent_goodput_hook.py\"",
+            "timeout": 2,
+            "statusMessage": "Measuring route and context"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash|apply_patch|Agent|spawn_agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/env python3 -B \"$PLUGIN_ROOT/hooks/agent_goodput_hook.py\"",
+            "timeout": 2
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/env python3 -B \"$PLUGIN_ROOT/hooks/agent_goodput_hook.py\"",
+            "timeout": 2
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/env python3 -B \"$PLUGIN_ROOT/hooks/agent_goodput_hook.py\"",
+            "timeout": 1
+          }
+        ]
+      }
+    ]
+  }
+}

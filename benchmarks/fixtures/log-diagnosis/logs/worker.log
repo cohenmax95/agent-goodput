@@ -1,0 +1,11 @@
+2026-07-26T10:00:00Z INFO voice request accepted path=/api/twilio/voice/inbound-ivr
+2026-07-26T10:00:01Z INFO voice request completed status=200
+2026-07-26T10:00:02Z INFO health check status=200
+2026-07-26T10:00:03Z INFO health check status=200
+2026-07-26T10:00:04Z INFO health check status=200
+2026-07-26T10:00:05Z WARNING sms not observed expected=/api/twilio/sms
+2026-07-26T10:00:05Z ERROR provider routed inbound message through service override destination=/legacy/inbound service=MG_SYNTHETIC
+2026-07-26T10:00:06Z INFO health check status=200
+2026-07-26T10:00:07Z INFO health check status=200
+2026-07-26T10:00:08Z INFO health check status=200
+

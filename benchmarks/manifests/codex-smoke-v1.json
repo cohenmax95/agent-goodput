@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "name": "codex-smoke-v1",
+  "random_seed": 1729,
+  "variants": {
+    "baseline": {
+      "route_name": "sol-high",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "command": [
+        "python3",
+        "{manifest_dir}/../../scripts/codex_benchmark_driver.py"
+      ],
+      "usage_file": ".usage.json",
+      "execution_file": ".execution.json",
+      "env": {
+        "AGP_MODEL": "{model}",
+        "AGP_EFFORT": "{effort}",
+        "AGP_OUTPUT_SCHEMA": "{manifest_dir}/../schemas/evidence-answer.schema.json",
+        "AGP_SANDBOX": "read-only",
+        "AGP_CODEX_TIMEOUT": "600"
+      }
+    },
+    "candidate": {
+      "route_name": "terra-medium-bounded-read",
+      "model": "gpt-5.6-terra",
+      "effort": "medium",
+      "command": [
+        "python3",
+        "{manifest_dir}/../../scripts/codex_benchmark_driver.py"
+      ],
+      "usage_file": ".usage.json",
+      "execution_file": ".execution.json",
+      "env": {
+        "AGP_MODEL": "{model}",
+        "AGP_EFFORT": "{effort}",
+        "AGP_OUTPUT_SCHEMA": "{manifest_dir}/../schemas/evidence-answer.schema.json",
+        "AGP_SANDBOX": "read-only",
+        "AGP_PREWORK": "inventory",
+        "AGP_CODEX_TIMEOUT": "600"
+      }
+    }
+  },
+  "tasks": [
+    {
+      "id": "mailbox-state",
+      "family": "state-trace",
+      "project_id": "synthetic-mailops",
+      "bucket": "research:low:none:simple",
+      "fixture": "../fixtures/mailbox-state",
+      "instruction_file": "../tasks/mailbox-state.md",
+      "seeds": [
+        101
+      ],
+      "timeout": 700,
+      "evaluators": [
+        {
+          "type": "exit_code",
+          "name": "runner-completed",
+          "critical": true
+        },
+        {
+          "type": "answer_contract",
+          "name": "deterministic-answer",
+          "critical": true,
+          "path": "answer.json",
+          "task_id": "mailbox-state",
+          "conclusion": "HELD_FOR_SCAN",
+          "required_paths": [
+            "mailops/state.py",
+            "tests/test_mailbox.py"
+          ],
+          "fact_contains": [
+            "scan_history",
+            "HELD_FOR_SCAN"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "log-diagnosis",
+      "family": "incident-diagnosis",
+      "project_id": "synthetic-comms",
+      "bucket": "diagnosis:low:none:moderate",
+      "fixture": "../fixtures/log-diagnosis",
+      "instruction_file": "../tasks/log-diagnosis.md",
+      "seeds": [
+        101
+      ],
+      "timeout": 700,
+      "variant_overrides": {
+        "candidate": {
+          "env": {
+            "AGP_PREWORK": "inventory,result-filter"
+          }
+        }
+      },
+      "evaluators": [
+        {
+          "type": "exit_code",
+          "name": "runner-completed",
+          "critical": true
+        },
+        {
+          "type": "answer_contract",
+          "name": "deterministic-answer",
+          "critical": true,
+          "path": "answer.json",
+          "task_id": "log-diagnosis",
+          "conclusion": "messagingService.inboundRequestUrl",
+          "required_paths": [
+            "config/messaging.json",
+            "src/router.py",
+            "logs/worker.log"
+          ],
+          "fact_contains": [
+            "/legacy/inbound",
+            "useInboundWebhookOnNumber"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "path-traversal",
+      "family": "security-review",
+      "project_id": "synthetic-exporter",
+      "bucket": "research:high:none:simple",
+      "fixture": "../fixtures/path-traversal",
+      "instruction_file": "../tasks/path-traversal.md",
+      "seeds": [
+        101
+      ],
+      "timeout": 700,
+      "variant_overrides": {
+        "candidate": {
+          "route_name": "sol-high",
+          "model": "gpt-5.6-sol",
+          "effort": "high",
+          "env": {
+            "AGP_MODEL": "gpt-5.6-sol",
+            "AGP_EFFORT": "high",
+            "AGP_PREWORK": "inventory"
+          }
+        }
+      },
+      "evaluators": [
+        {
+          "type": "exit_code",
+          "name": "runner-completed",
+          "critical": true
+        },
+        {
+          "type": "answer_contract",
+          "name": "deterministic-answer",
+          "critical": true,
+          "path": "answer.json",
+          "task_id": "path-traversal",
+          "conclusion": "Path traversal through export_name",
+          "required_paths": [
+            "exporter.py",
+            "tests/test_exporter.py"
+          ],
+          "fact_contains": [
+            "export_name",
+            "destination",
+            "skip"
+          ],
+          "fact_forbids": [
+            "already fixed"
+          ]
+        }
+      ]
+    }
+  ]
+}

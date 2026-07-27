@@ -1,0 +1,373 @@
+{
+  "schema_version": 1,
+  "name": "codex-full-v1",
+  "random_seed": 271828,
+  "variants": {
+    "baseline": {
+      "route_name": "sol-high",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "command": [
+        "python3",
+        "{manifest_dir}/../../scripts/codex_benchmark_driver.py"
+      ],
+      "usage_file": ".usage.json",
+      "execution_file": ".execution.json",
+      "env": {
+        "AGP_MODEL": "{model}",
+        "AGP_EFFORT": "{effort}",
+        "AGP_OUTPUT_SCHEMA": "{manifest_dir}/../schemas/evidence-answer.schema.json",
+        "AGP_SANDBOX": "read-only",
+        "AGP_CODEX_TIMEOUT": "600"
+      }
+    },
+    "candidate": {
+      "route_name": "terra-medium-bounded-read",
+      "model": "gpt-5.6-terra",
+      "effort": "medium",
+      "command": [
+        "python3",
+        "{manifest_dir}/../../scripts/codex_benchmark_driver.py"
+      ],
+      "usage_file": ".usage.json",
+      "execution_file": ".execution.json",
+      "env": {
+        "AGP_MODEL": "{model}",
+        "AGP_EFFORT": "{effort}",
+        "AGP_OUTPUT_SCHEMA": "{manifest_dir}/../schemas/evidence-answer.schema.json",
+        "AGP_SANDBOX": "read-only",
+        "AGP_PREWORK": "inventory",
+        "AGP_CODEX_TIMEOUT": "600"
+      }
+    }
+  },
+  "tasks": [
+    {
+      "id": "mailbox-state",
+      "family": "state-trace",
+      "project_id": "synthetic-mailops",
+      "bucket": "research:low:none:simple",
+      "fixture": "../fixtures/mailbox-state",
+      "instruction_file": "../tasks/mailbox-state.md",
+      "seeds": [
+        101,
+        202,
+        303
+      ],
+      "timeout": 700,
+      "evaluators": [
+        {
+          "type": "exit_code",
+          "name": "runner-completed",
+          "critical": true
+        },
+        {
+          "type": "answer_contract",
+          "name": "deterministic-answer",
+          "critical": true,
+          "path": "answer.json",
+          "task_id": "mailbox-state",
+          "conclusion": "HELD_FOR_SCAN",
+          "required_paths": [
+            "mailops/state.py",
+            "tests/test_mailbox.py"
+          ],
+          "fact_contains": [
+            "scan_history",
+            "HELD_FOR_SCAN"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "config-precedence",
+      "family": "configuration",
+      "project_id": "synthetic-router",
+      "bucket": "research:low:none:simple",
+      "fixture": "../fixtures/config-precedence",
+      "instruction_file": "../tasks/config-precedence.md",
+      "seeds": [
+        101,
+        202,
+        303
+      ],
+      "timeout": 700,
+      "evaluators": [
+        {
+          "type": "exit_code",
+          "name": "runner-completed",
+          "critical": true
+        },
+        {
+          "type": "answer_contract",
+          "name": "deterministic-answer",
+          "critical": true,
+          "path": "answer.json",
+          "task_id": "config-precedence",
+          "conclusion": "gpt-5.6-sol|medium|hooks=true",
+          "required_paths": [
+            "router/config.py",
+            "tests/test_config.py"
+          ],
+          "fact_contains": [
+            "hooks",
+            "task"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "call-identity",
+      "family": "data-flow",
+      "project_id": "synthetic-crm",
+      "bucket": "research:low:none:simple",
+      "fixture": "../fixtures/call-identity",
+      "instruction_file": "../tasks/call-identity.md",
+      "seeds": [
+        101,
+        202,
+        303
+      ],
+      "timeout": 700,
+      "evaluators": [
+        {
+          "type": "exit_code",
+          "name": "runner-completed",
+          "critical": true
+        },
+        {
+          "type": "answer_contract",
+          "name": "deterministic-answer",
+          "critical": true,
+          "path": "answer.json",
+          "task_id": "call-identity",
+          "conclusion": "session.rawNumber",
+          "required_paths": [
+            "src/calls/session.ts",
+            "src/phone/view.ts"
+          ],
+          "fact_contains": [
+            "rawNumber",
+            "dialedNumber"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "log-diagnosis",
+      "family": "incident-diagnosis",
+      "project_id": "synthetic-comms",
+      "bucket": "diagnosis:low:none:moderate",
+      "fixture": "../fixtures/log-diagnosis",
+      "instruction_file": "../tasks/log-diagnosis.md",
+      "seeds": [
+        101,
+        202,
+        303
+      ],
+      "timeout": 700,
+      "variant_overrides": {
+        "candidate": {
+          "env": {
+            "AGP_PREWORK": "inventory,result-filter"
+          }
+        }
+      },
+      "evaluators": [
+        {
+          "type": "exit_code",
+          "name": "runner-completed",
+          "critical": true
+        },
+        {
+          "type": "answer_contract",
+          "name": "deterministic-answer",
+          "critical": true,
+          "path": "answer.json",
+          "task_id": "log-diagnosis",
+          "conclusion": "messagingService.inboundRequestUrl",
+          "required_paths": [
+            "config/messaging.json",
+            "src/router.py",
+            "logs/worker.log"
+          ],
+          "fact_contains": [
+            "/legacy/inbound",
+            "useInboundWebhookOnNumber"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "path-traversal",
+      "family": "security-review",
+      "project_id": "synthetic-exporter",
+      "bucket": "research:high:none:simple",
+      "fixture": "../fixtures/path-traversal",
+      "instruction_file": "../tasks/path-traversal.md",
+      "seeds": [
+        101,
+        202,
+        303
+      ],
+      "timeout": 700,
+      "variant_overrides": {
+        "candidate": {
+          "route_name": "sol-high",
+          "model": "gpt-5.6-sol",
+          "effort": "high",
+          "env": {
+            "AGP_MODEL": "gpt-5.6-sol",
+            "AGP_EFFORT": "high",
+            "AGP_PREWORK": "inventory"
+          }
+        }
+      },
+      "evaluators": [
+        {
+          "type": "exit_code",
+          "name": "runner-completed",
+          "critical": true
+        },
+        {
+          "type": "answer_contract",
+          "name": "deterministic-answer",
+          "critical": true,
+          "path": "answer.json",
+          "task_id": "path-traversal",
+          "conclusion": "Path traversal through export_name",
+          "required_paths": [
+            "exporter.py",
+            "tests/test_exporter.py"
+          ],
+          "fact_contains": [
+            "export_name",
+            "destination",
+            "skip"
+          ],
+          "fact_forbids": [
+            "already fixed"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "closing-ambiguity",
+      "family": "high-stakes-synthesis",
+      "project_id": "synthetic-closing",
+      "bucket": "research:high:none:moderate",
+      "fixture": "../fixtures/closing-ambiguity",
+      "instruction_file": "../tasks/closing-ambiguity.md",
+      "seeds": [
+        101,
+        202,
+        303
+      ],
+      "timeout": 700,
+      "variant_overrides": {
+        "candidate": {
+          "route_name": "sol-high",
+          "model": "gpt-5.6-sol",
+          "effort": "high",
+          "env": {
+            "AGP_MODEL": "gpt-5.6-sol",
+            "AGP_EFFORT": "high",
+            "AGP_PREWORK": "inventory"
+          }
+        }
+      },
+      "evaluators": [
+        {
+          "type": "exit_code",
+          "name": "runner-completed",
+          "critical": true
+        },
+        {
+          "type": "answer_contract",
+          "name": "deterministic-answer",
+          "critical": true,
+          "path": "answer.json",
+          "task_id": "closing-ambiguity",
+          "conclusion": "UNDETERMINED",
+          "required_paths": [
+            "docs/closing-statement-a.txt",
+            "docs/closing-statement-b.txt",
+            "docs/README.md"
+          ],
+          "fact_contains": [
+            "draft",
+            "final"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "phone-normalizer",
+      "family": "code-change",
+      "project_id": "synthetic-phone",
+      "bucket": "code:medium:local:simple",
+      "fixture": "../fixtures/phone-normalizer",
+      "instruction_file": "../tasks/phone-normalizer.md",
+      "seeds": [
+        101,
+        202,
+        303
+      ],
+      "timeout": 900,
+      "variant_overrides": {
+        "baseline": {
+          "env": {
+            "AGP_SANDBOX": "workspace-write"
+          }
+        },
+        "candidate": {
+          "route_name": "sol-medium",
+          "model": "gpt-5.6-sol",
+          "effort": "medium",
+          "env": {
+            "AGP_MODEL": "gpt-5.6-sol",
+            "AGP_EFFORT": "medium",
+            "AGP_SANDBOX": "workspace-write",
+            "AGP_PREWORK": "inventory"
+          }
+        }
+      },
+      "evaluators": [
+        {
+          "type": "exit_code",
+          "name": "runner-completed",
+          "critical": true
+        },
+        {
+          "type": "command",
+          "name": "unit-tests",
+          "critical": true,
+          "command": [
+            "python3",
+            "-m",
+            "unittest",
+            "-q"
+          ],
+          "expected_exit": 0,
+          "timeout": 60
+        },
+        {
+          "type": "answer_contract",
+          "name": "deterministic-answer",
+          "critical": false,
+          "path": "answer.json",
+          "task_id": "phone-normalizer",
+          "conclusion": "PASS",
+          "required_paths": [
+            "phone.py",
+            "test_phone.py"
+          ],
+          "fact_contains": [
+            "+1",
+            "tests"
+          ]
+        }
+      ]
+    }
+  ]
+}

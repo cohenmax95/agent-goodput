@@ -1,0 +1,6 @@
+interface:
+  display_name: "Agent Goodput"
+  short_description: "Quality-gated agent efficiency"
+  default_prompt: "Measure this task's route, context, delegation ROI, and verified token result."
+policy:
+  allow_implicit_invocation: true

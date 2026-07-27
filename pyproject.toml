@@ -1,0 +1,71 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agent-goodput"
+version = "0.1.0"
+description = "Quality-gated optimization for agent model, context, tool, and delegation choices."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+authors = [{ name = "Max Cohen" }]
+keywords = [
+  "agents",
+  "codex",
+  "evaluation",
+  "llm",
+  "model-routing",
+  "token-efficiency",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Software Development :: Testing",
+]
+dependencies = []
+
+[project.optional-dependencies]
+tokens = ["tiktoken>=0.9"]
+dev = [
+  "build>=1.2",
+  "mypy>=1.13",
+  "pytest>=8.3",
+  "ruff>=0.9",
+]
+
+[project.scripts]
+agent-goodput = "agent_goodput.cli:main"
+agp = "agent_goodput.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+agent_goodput = [
+  "assets/.codex-plugin/*.json",
+  "assets/hooks/*",
+  "assets/skills/**/*",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+packages = ["agent_goodput"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
