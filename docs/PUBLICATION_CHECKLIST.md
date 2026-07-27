@@ -69,4 +69,7 @@ Do not publish from an automated task. Publication requires an explicit human de
 - [x] Max explicitly delegated the release decision after the quality and safety gates pass.
 - [x] Max explicitly authorized repository creation and push.
 - [x] Remote visibility, owner, repository name, and license were confirmed.
-- [ ] First release is tagged as alpha.
+- [x] First release is tagged and published as a GitHub prerelease.
+- [x] Release checksums and GitHub build provenance verify against the tagged commit.
+- [x] The permanent evidence site passes production response, security-header,
+      desktop/mobile accessibility, and reduced-motion checks.
