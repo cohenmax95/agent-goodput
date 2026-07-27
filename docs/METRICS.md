@@ -80,13 +80,26 @@ Default quality noninferiority allows at most a 1 percentage point loss at the l
 
 ## Call counts
 
-Current Codex JSON execution output exposes cumulative token totals and item lifecycle events, but not a reliable count of internal model requests. Agent Goodput therefore labels `calls=1` as one agent-run invocation unless Codex explicitly reports `model_calls`.
+Current Codex JSON execution output exposes cumulative token totals and item
+lifecycle events, but not a reliable count of internal model requests. Agent
+Goodput therefore keeps `calls` as an agent-run invocation count.
 
 A selective repair creates a second isolated agent-run invocation, so its
-combined outcome reports `calls=2` when neither execution exposes a more exact
-internal model-call count.
+combined outcome reports `calls=2`.
+
+For isolated runs, the runner can also capture `response_cycles`. It lets Codex
+write its rollout only inside the disposable execution home, counts persisted
+`token_count` events with usage, retains only that integer, and deletes the
+rollout with the temporary directory. In the inspected Codex runtime, one such
+event is emitted after each completed sampling response. If the rollout is
+missing, oversized, malformed, or conflicts with a direct Codex signal, the
+field remains unknown.
 
 Completed command executions and completed agent messages are recorded separately. They are useful process signals, but neither should be presented as an internal model-call count.
+
+`response_cycles` is an episode signal, not a provider invoice item. Public
+results must name its source and runtime version. The private-workload v6
+confirmation predates this counter and reports agent-run invocations only.
 
 ## Reporting rule
 
@@ -99,6 +112,7 @@ Every public result should show:
 - cached and uncached input;
 - output tokens;
 - agent-run invocations;
+- response cycles and coverage when the runtime exposes them;
 - repair count, successful repairs, repair tokens, and repair elapsed time;
 - deterministic completion attempts, refusals, successes, paths added, certificates added, matched literals, and elapsed time;
 - elapsed time;

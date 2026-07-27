@@ -66,7 +66,23 @@ Apply only after reviewing the plan:
 agp install --apply
 ```
 
-The installer records ownership hashes. It refuses to overwrite unmanaged or modified files.
+The installer records ownership hashes. It refuses to overwrite unmanaged or
+modified files. Installed hook commands are pinned to the Python 3.11 or newer
+interpreter that ran the installer, so the Codex app does not fall back to an
+older system Python. Keep that environment in place or reinstall from the new
+environment.
+
+Codex deliberately requires one-time human trust for non-managed command hooks:
+
+1. restart Codex if it was open during installation;
+2. enable Agent Goodput from the personal plugin marketplace if it is not
+   already enabled;
+3. open `/hooks`, inspect the exact definitions, and trust them.
+
+The installer does not bypass Codex hook trust. After this setup, the lifecycle
+observation and policy-state cycle can run without routine input. Route
+enforcement still requires `agp run` or another pre-execution harness, and a
+new workload cannot promote without a real evaluator.
 
 Uninstall is also dry-run first:
 

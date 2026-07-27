@@ -138,6 +138,11 @@ def merge_repair(
             merged.append(repair_by_name.get(obligation.name, obligation))
     existing = {item.name for item in original.obligations}
     merged.extend(item for item in repair.obligations if item.name not in existing)
+    response_cycles = (
+        original.usage.response_cycles + repair.usage.response_cycles
+        if original.usage.response_cycles is not None and repair.usage.response_cycles is not None
+        else None
+    )
     return RunOutcome(
         run_id=run_id,
         task_id=original.task_id,
@@ -156,6 +161,13 @@ def merge_repair(
                 original.usage.call_count_source
                 if original.usage.call_count_source == repair.usage.call_count_source
                 else "mixed"
+            ),
+            response_cycles=response_cycles,
+            response_cycle_source=(
+                original.usage.response_cycle_source
+                if response_cycles is not None
+                and original.usage.response_cycle_source == repair.usage.response_cycle_source
+                else ("mixed" if response_cycles is not None else None)
             ),
             source=(
                 original.usage.source if original.usage.source == repair.usage.source else "mixed"

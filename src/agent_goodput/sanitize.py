@@ -98,7 +98,7 @@ def _public_environment(raw: Any) -> dict[str, str]:
 
 def _public_usage(raw: Any) -> dict[str, Any]:
     value = raw if isinstance(raw, dict) else {}
-    return {
+    public = {
         "input_tokens": int(value.get("input_tokens", 0)),
         "cached_input_tokens": int(value.get("cached_input_tokens", 0)),
         "output_tokens": int(value.get("output_tokens", 0)),
@@ -107,6 +107,10 @@ def _public_usage(raw: Any) -> dict[str, Any]:
         "call_count_source": str(value.get("call_count_source", "agent-run")),
         "source": str(value.get("source", "unknown")),
     }
+    if value.get("response_cycles") is not None:
+        public["response_cycles"] = int(value["response_cycles"])
+        public["response_cycle_source"] = str(value.get("response_cycle_source", "unknown"))
+    return public
 
 
 def _public_obligations(
@@ -239,7 +243,7 @@ def _public_summary(raw: Any) -> dict[str, Any]:
     def variant(name: str) -> dict[str, Any]:
         selected = value.get(name)
         item = selected if isinstance(selected, dict) else {}
-        return {
+        public = {
             "agent_run_invocations": int(item.get("agent_run_invocations", 0)),
             "cached_input_tokens": int(item.get("cached_input_tokens", 0)),
             "elapsed_ms": int(item.get("elapsed_ms", 0)),
@@ -277,6 +281,10 @@ def _public_summary(raw: Any) -> dict[str, Any]:
             "uncached_input_tokens": int(item.get("uncached_input_tokens", 0)),
             "verified_goodput": float(item.get("verified_goodput", 0.0)),
         }
+        if item.get("response_cycles") is not None:
+            public["response_cycles"] = int(item["response_cycles"])
+            public["response_cycle_coverage"] = int(item.get("response_cycle_coverage", 0))
+        return public
 
     raw_promotion = value.get("promotion")
     promotion = raw_promotion if isinstance(raw_promotion, dict) else {}

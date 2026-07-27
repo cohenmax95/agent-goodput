@@ -41,8 +41,15 @@ class TokenUsageTests(unittest.TestCase):
             TokenUsage(input_tokens=3, cached_input_tokens=4)
 
     def test_raw_total_does_not_double_count_reasoning(self) -> None:
-        usage = TokenUsage(input_tokens=10, output_tokens=7, reasoning_tokens=5)
+        usage = TokenUsage(
+            input_tokens=10,
+            output_tokens=7,
+            reasoning_tokens=5,
+            response_cycles=3,
+            response_cycle_source="codex:token-count-events",
+        )
         self.assertEqual(17, usage.raw_total_tokens)
+        self.assertEqual(3, usage.response_cycles)
 
     def test_effective_token_weights_are_explicit(self) -> None:
         usage = TokenUsage(input_tokens=100, cached_input_tokens=40, output_tokens=5)

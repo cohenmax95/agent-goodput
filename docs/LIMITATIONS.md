@@ -9,7 +9,11 @@ Agent Goodput is alpha software. Its safety properties come from conservative de
 - Automatic promotion is only as good as the evaluator suite. A weak oracle can verify the wrong property.
 - The public reproducible benchmark uses synthetic repositories with deterministic answers. A private real-workload shadow can add practical evidence, but proprietary fixtures cannot be independently inspected and must not be presented as public reproducibility.
 - Repeated benchmark labels represent fresh stochastic executions. They are not fixed provider seeds.
-- Current Codex telemetry reports exact cumulative token totals but not a reliable internal model-call count.
+- Current Codex JSON output reports exact cumulative token totals but not an
+  internal model-call count. For isolated runs, Agent Goodput can count
+  completed sampling-response cycles from temporary rollout events. This
+  version-dependent episode signal is not a provider billing item, and v6
+  predates it.
 - Raw tokens do not equal cost. Cache behavior, model pricing, and output pricing change the bill.
 - Effective-token weights are explicit assumptions and should not be presented as literal token savings.
 - The local signature and hash chain detect common corruption and tampering. They do not protect against an attacker who can replace the state directory and key together.
@@ -27,4 +31,6 @@ Agent Goodput is alpha software. Its safety properties come from conservative de
   evaluator type is not allowlisted, the caller must request a full rerun.
 - Automatic selective repair currently requires a benchmark or harness adapter with deterministic obligations. The generic `agp run` command cannot invent a correctness oracle.
 - The installer targets the current personal Codex plugin layout. Codex lifecycle schemas can change.
+- Non-managed hooks require explicit review and trust through Codex. Agent
+  Goodput does not and should not bypass that one-time control.
 - No route is installed or promoted merely because a repository benchmark succeeds. Real workloads require their own shadow evidence.

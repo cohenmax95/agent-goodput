@@ -6,8 +6,15 @@ Agent Goodput is a quality-gated control layer for Codex. It measures task risk,
 
 ## Current evidence
 
-The project is still alpha. Confirmation v2 passed the preregistered gate inside
-its synthetic task envelope:
+The project is alpha. A preregistered 40-pair shadow derived from four private
+day-to-day codebases passed every frozen gate. The candidate completed all 40
+tasks, compared with 32 for the always-Sol-High baseline, while using 39.6%
+fewer raw tokens overall. The 95% paired savings interval was 32.6% to 44.3%.
+
+The private fixtures cannot be published, so that result is practical evidence,
+not an independently reproducible benchmark. A separate public synthetic suite
+is included so anyone can inspect the tasks, rerun the evaluator, and challenge
+the method.
 
 | Suite | Quality | Candidate raw tokens | Candidate time | Decision |
 | --- | ---: | ---: | ---: | --- |
@@ -18,40 +25,36 @@ its synthetic task envelope:
 | 32-pair private-workload confirmation v1 | 27/32 vs 25/32 | 37.1% fewer overall | 38.5% less | Reject, deterministic evidence obligations failed |
 | 32-pair private-workload confirmation v2 | 31/32 vs 31/32 | 29.6% fewer recorded, not claimable | 54.7% less | Reject, one candidate repair failed and one baseline run lacked exact usage |
 | 32-pair private-workload confirmation v3 | 31/32 vs 28/32 | 28.8% fewer overall | 23.6% less | Reject, targeted repair failed 4 of 7 times |
+| 40-pair private-workload confirmation v5 | 37/40 vs 38/40 | 40.0% fewer overall | 44.6% less | Reject, two candidate critical failures |
+| 40-pair private-workload confirmation v6 | 32/40 vs 40/40 | 39.6% fewer overall | 42.5% less | Pass, canary eligible inside the tested envelope |
 
-In confirmation v2, the paired mean raw-token savings was 30.1%, with a 95%
-interval from 25.5% to 34.4%. Both routes passed all 35 tasks, candidate critical
-failures were zero, and every run used provider-reported usage. The candidate
-also finished 31.0% faster and produced 36.1% more verified goodput under the
-project's explicit weighting.
+In private-workload confirmation v6, the candidate kept 15 safety-sensitive
+tasks on Sol High and routed 25 bounded read tasks to Terra Medium. It made
+exactly one Codex agent-run invocation per task, the same as the baseline.
+That frozen run predates Agent Goodput's privacy-safe response-cycle counter,
+so it makes no internal-cycle claim. Two answers needed mechanical evidence
+completion. A fail-closed local compiler added two certificates in 2
+milliseconds total, without a second Codex run, and the unchanged evaluator
+revalidated each complete answer. Every execution used provider-reported
+usage.
 
-This is evidence for seven task families in seven synthetic projects. It is not
-proof for every repository or permission surface, and it does not authorize a
-live promotion.
+The reproducible synthetic confirmation remains a separate result. Both routes
+passed all 35 public tasks. The candidate used 29.8% fewer raw tokens overall,
+with a 95% paired savings interval from 25.5% to 34.4%, and finished 31.0%
+faster.
 
-The first privacy-safe shadow over four private day-to-day application
-codebases was rejected despite its token savings. Every failed answer reached
-the required conclusion but omitted at least one explicit evidence path or
-verification fact. That result exposed a missing execution link: selective
-repair existed as a library primitive but was not wired into the benchmark
-adapter. The rejected result remains part of the public evidence.
-
-Private-workload confirmation v2 exercised the new repair path five times. Four
-repairs passed complete revalidation. One repair still omitted two literal
-evidence requirements, and one baseline Sol High run timed out before reporting
-usage. The gate rejected the result even though both policies passed 31 of 32
-tasks and the candidate used fewer tokens. This failure now drives a stricter
-verifier-derived repair contract.
-
-Private-workload confirmation v3 showed that a stricter model prompt was not a
-reliable enough quality backstop. Seven repairs ran, but only three passed. All
-four remaining failures were missing evidence paths. The next design moves that
-mechanical evidence work out of the reasoning loop and keeps model escalation
-for semantic failures.
+Five earlier private-workload iterations were rejected or held even when they
+used fewer tokens. Those failures exposed unwired repair, missing exact usage,
+stochastic model repair, and overly narrow deterministic evidence rules. None
+was rescored. The v6 claim comes from a fresh preregistration, new run labels,
+new randomization, and a frozen implementation.
 
 See [confirmation v2 results](docs/RESULTS.md), [negative and developmental
 results](docs/NEGATIVE_RESULTS.md), and the [sanitized per-run
 evidence](benchmarks/results/README.md).
+
+These results do not prove savings on every repository, writing task, browser
+workflow, or production action. No live Codex policy was changed.
 
 ## The problem
 
@@ -86,9 +89,10 @@ Savings count only when task-specific obligations pass.
 - Deterministic inventory, diff, log filtering, and schema prework
 - Fail-closed deterministic completion for verifier-reported, task-explicit lexical evidence gaps
 - Delegation return-on-investment and independence gates
-- One-shot targeted repair or clean stronger-model fallback with complete revalidation
+- Optional targeted model repair with complete revalidation and cumulative accounting
 - Exact cumulative accounting for initial and repair executions
 - Provider-reported token accounting separated from cache and cost views
+- Privacy-safe response-cycle counts from disposable isolated Codex rollouts
 - Deterministic task obligations and safety-critical zeroing
 - Paired bootstrap confidence intervals
 - Shadow, canary, active, and rolled-back policy phases
@@ -102,6 +106,8 @@ Savings count only when task-specific obligations pass.
 ## Quick start
 
 ```bash
+git clone https://github.com/cohenmax95/agent-goodput.git
+cd agent-goodput
 python3 -m venv .venv
 . .venv/bin/activate
 python -m pip install -e .
@@ -134,6 +140,9 @@ agp install
 ```
 
 Installation and policy mutation are dry-run by default. See [integration](docs/INTEGRATION.md) before applying either.
+After an intentional install, restart Codex, enable the personal plugin if
+needed, and use `/hooks` to review and trust the exact hook definitions. Codex
+does not let a third-party installer bypass that trust step.
 
 ## Quality gate
 
@@ -150,7 +159,7 @@ A candidate cannot advance unless all configured requirements pass:
 
 Failed attempts contribute zero verified work and keep all their tokens in the denominator.
 
-## Hands-off policy lifecycle
+## Hands-off policy-state lifecycle
 
 Codex lifecycle hooks cannot change the model selected for the task already
 running. The plugin is therefore an observation and policy-state surface, not a
@@ -225,8 +234,10 @@ Hook telemetry uses digests, keyed project identifiers, allowlisted reason codes
 - [Prior art and clean-room policy](docs/PRIOR_ART.md)
 - [Limitations](docs/LIMITATIONS.md)
 - [Publication checklist](docs/PUBLICATION_CHECKLIST.md)
+- [Alpha release notes](docs/RELEASE_NOTES_0.1.0-alpha.1.md)
 - [Security policy](SECURITY.md)
 - [Contributing](CONTRIBUTING.md)
+- [Changelog](CHANGELOG.md)
 
 ## License
 

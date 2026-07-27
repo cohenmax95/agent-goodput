@@ -10,7 +10,8 @@ Improve verified useful work per token without lowering quality.
 - Use deterministic local checks before agent reasoning when they answer the question directly.
 - Preserve the baseline, privacy boundary, dry-run defaults, and rollback behavior.
 - Never convert estimated token usage into a reported measurement.
-- Never treat tool events or one runner invocation as an exact internal model-call count.
+- Never treat tool events, response cycles, or one runner invocation as an
+  exact provider-request count. Keep each signal separate and source-labeled.
 - Never weaken evaluators or delete negative results to improve a benchmark.
 - Do not retain raw prompts, model outputs, tool inputs, tool outputs, credentials, transcripts, or private project paths.
 - Do not inspect or copy source from proprietary, preview-only, or incompatible-license projects.
@@ -34,4 +35,3 @@ Improve verified useful work per token without lowering quality.
 ## Public writing
 
 State what the evidence proves and what it does not. Show quality gates beside savings. Do not use attention metrics, feature counts, or a smoke test as proof of superior runtime performance.
-

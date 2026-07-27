@@ -126,7 +126,12 @@ class EscalationTests(unittest.TestCase):
             project_id="project",
             task_family="code",
             route_name=route,
-            usage=TokenUsage(input_tokens=10, output_tokens=2),
+            usage=TokenUsage(
+                input_tokens=10,
+                output_tokens=2,
+                response_cycles=2,
+                response_cycle_source="codex:token-count-events",
+            ),
             obligations=(
                 ObligationResult("tests", True, critical=True),
                 ObligationResult("docs", passed),
@@ -199,7 +204,12 @@ class EscalationTests(unittest.TestCase):
             project_id="project",
             task_family="code",
             route_name="strong",
-            usage=TokenUsage(input_tokens=5, output_tokens=1),
+            usage=TokenUsage(
+                input_tokens=5,
+                output_tokens=1,
+                response_cycles=1,
+                response_cycle_source="codex:token-count-events",
+            ),
             obligations=(ObligationResult("docs", True),),
             elapsed_ms=5,
         )
@@ -207,6 +217,7 @@ class EscalationTests(unittest.TestCase):
         self.assertTrue(merged.passed)
         self.assertEqual(15, merged.usage.input_tokens)
         self.assertEqual(2, merged.usage.calls)
+        self.assertEqual(3, merged.usage.response_cycles)
 
 
 if __name__ == "__main__":

@@ -24,7 +24,7 @@ export const metadata: Metadata = {
         url: "/og-card.png",
         width: 1200,
         height: 630,
-        alt: "Agent Goodput verification dashboard showing 35 of 35 verified tasks and 29.8 percent fewer raw tokens.",
+        alt: "Agent Goodput synthetic benchmark dashboard showing 35 of 35 verified tasks and 29.8 percent fewer raw tokens.",
       },
     ],
   },

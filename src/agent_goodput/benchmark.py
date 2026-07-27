@@ -63,6 +63,11 @@ class BenchmarkRun:
         candidate_tokens = sum(item.usage.raw_total_tokens for item in candidate)
 
         def variant_summary(items: list[RunOutcome]) -> dict[str, Any]:
+            response_cycles = [
+                item.usage.response_cycles
+                for item in items
+                if item.usage.response_cycles is not None
+            ]
             escalation_values = [
                 value
                 for item in items
@@ -98,6 +103,10 @@ class BenchmarkRun:
                 "verified_goodput": verified_goodput(items),
                 "elapsed_ms": sum(item.elapsed_ms for item in items),
                 "agent_run_invocations": sum(item.usage.calls for item in items),
+                "response_cycles": (
+                    sum(response_cycles) if len(response_cycles) == len(items) else None
+                ),
+                "response_cycle_coverage": len(response_cycles),
                 "repair_count": len(repairs),
                 "repair_success_count": sum(bool(item.get("repaired")) for item in repairs),
                 "repair_raw_tokens": sum(
@@ -439,6 +448,16 @@ def _read_usage(
                 reasoning_tokens=int(value.get("reasoning_tokens", 0)),
                 calls=int(value.get("calls", 1)),
                 call_count_source=str(value.get("call_count_source", "agent-run")),
+                response_cycles=(
+                    int(value["response_cycles"])
+                    if value.get("response_cycles") is not None
+                    else None
+                ),
+                response_cycle_source=(
+                    str(value["response_cycle_source"])
+                    if value.get("response_cycle_source") is not None
+                    else None
+                ),
                 source=str(value.get("source", "reported")),
             )
     counter = best_available_counter()
@@ -464,6 +483,11 @@ def _read_execution(variant: dict[str, Any], workspace: Path) -> dict[str, Any]:
 
 
 def _combine_usage(first: TokenUsage, second: TokenUsage) -> TokenUsage:
+    response_cycles = (
+        first.response_cycles + second.response_cycles
+        if first.response_cycles is not None and second.response_cycles is not None
+        else None
+    )
     return TokenUsage(
         input_tokens=first.input_tokens + second.input_tokens,
         cached_input_tokens=first.cached_input_tokens + second.cached_input_tokens,
@@ -474,6 +498,13 @@ def _combine_usage(first: TokenUsage, second: TokenUsage) -> TokenUsage:
             first.call_count_source
             if first.call_count_source == second.call_count_source
             else "mixed"
+        ),
+        response_cycles=response_cycles,
+        response_cycle_source=(
+            first.response_cycle_source
+            if response_cycles is not None
+            and first.response_cycle_source == second.response_cycle_source
+            else ("mixed" if response_cycles is not None else None)
         ),
         source=first.source if first.source == second.source else "mixed",
     )

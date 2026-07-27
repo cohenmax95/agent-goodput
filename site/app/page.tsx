@@ -61,9 +61,9 @@ const mechanisms = [
     signal: "fewer reasoning steps",
   },
   {
-    title: "Selective escalation",
-    body: "Sends only failed claims and missing evidence to a stronger route instead of restarting the whole task.",
-    signal: "repair, not replay",
+    title: "Deterministic evidence compiler",
+    body: "Completes only verifier-reported, task-explicit lexical evidence gaps from bounded trusted files, then revalidates the full answer.",
+    signal: "mechanical work, no second run",
   },
   {
     title: "Delegation ROI gate",
@@ -114,11 +114,12 @@ export default function Home() {
           <a href="#method">Method</a>
           <a href="#gates">Gates</a>
           <a href="#scope">Scope</a>
+          <a href="https://github.com/cohenmax95/agent-goodput">GitHub</a>
         </nav>
-        <span className="alpha-badge">Local alpha</span>
+        <span className="alpha-badge">Public alpha</span>
       </header>
 
-      <main id="main">
+      <main id="main" tabIndex={-1}>
         <section className="hero" id="top" aria-labelledby="hero-title">
           <div className="hero-grid" aria-hidden="true" />
           <div className="signal-orbit orbit-one" aria-hidden="true" />
@@ -145,6 +146,12 @@ export default function Home() {
               </a>
               <a className="button button-secondary" href="#method">
                 See the control loop
+              </a>
+              <a
+                className="button button-secondary"
+                href="https://github.com/cohenmax95/agent-goodput"
+              >
+                View the source
               </a>
             </div>
             <dl className="hero-facts">
@@ -230,12 +237,12 @@ export default function Home() {
           <div className="section-heading">
             <div>
               <p className="section-kicker">Evidence ledger / 2026-07-26</p>
-              <h2>The gate passed. The scope stays narrow.</h2>
+              <h2>Two gates passed. Their scopes stay separate.</h2>
             </div>
             <p>
-              Confirmation v2 preserved every tested obligation and cleared the
-              preregistered savings bound. It earns canary eligibility only
-              inside this synthetic task envelope.
+              A private-workload shadow tests practical behavior. A public
+              synthetic suite lets anyone inspect and rerun the method. Neither
+              supports a universal savings claim.
             </p>
           </div>
 
@@ -243,13 +250,15 @@ export default function Home() {
             <article className="result-card featured-result">
               <div className="result-header">
                 <div>
-                  <span className="result-label">Confirmation v2</span>
-                  <h3>35 paired tasks</h3>
+                  <span className="result-label">
+                    Private-workload confirmation v6
+                  </span>
+                  <h3>40 paired tasks</h3>
                 </div>
                 <span className="decision passed">Canary eligible</span>
               </div>
               <div className="result-number">
-                <strong>29.8%</strong>
+                <strong>39.6%</strong>
                 <span>fewer raw tokens overall</span>
               </div>
               <div className="interval">
@@ -258,30 +267,35 @@ export default function Home() {
                   <span className="interval-point" />
                 </div>
                 <div className="interval-labels">
-                  <span>25.5%</span>
+                  <span>32.6%</span>
                   <span>95% savings interval</span>
-                  <span>34.4%</span>
+                  <span>44.3%</span>
                 </div>
               </div>
               <dl className="result-stats">
                 <div>
                   <dt>Baseline quality</dt>
-                  <dd>35 / 35</dd>
+                  <dd>32 / 40</dd>
                 </div>
                 <div>
                   <dt>Candidate quality</dt>
-                  <dd>35 / 35</dd>
+                  <dd>40 / 40</dd>
                 </div>
                 <div>
                   <dt>Candidate time</dt>
-                  <dd>31.0% less</dd>
+                  <dd>42.5% less</dd>
                 </div>
               </dl>
               <p className="pass-note">
                 <span aria-hidden="true">✓</span>
-                Passed all preregistered gates: 35 complete pairs, zero critical
-                failures, equal verified quality, provider-reported usage, and
-                a savings lower bound above 10%.
+                Passed all frozen gates: 40 complete pairs, zero candidate
+                critical failures, provider-reported usage, and a 32.6% savings
+                lower bound.
+              </p>
+              <p className="scope-note">
+                The four source projects are pseudonymous and the proprietary
+                fixtures are not published. This is practical shadow evidence,
+                not an independently reproducible benchmark.
               </p>
             </article>
 
@@ -289,24 +303,43 @@ export default function Home() {
               <article className="result-card confirmatory-card">
                 <div className="result-header">
                   <div>
-                    <span className="result-label">Confirmation v1</span>
-                    <h3>34 / 35 on both routes</h3>
+                    <span className="result-label">
+                      Public synthetic confirmation v2
+                    </span>
+                    <h3>35 / 35 on both routes</h3>
                   </div>
-                  <span className="decision rejected">Rejected</span>
+                  <span className="decision passed">Reproducible</span>
                 </div>
                 <p>
-                  Each route failed a different hidden lexical obligation. The
-                  result was preserved, not rescored, and used to repair the
-                  task contract before fresh confirmation.
+                  The candidate used 29.8% fewer raw tokens overall. The 95%
+                  paired savings interval was 25.5% to 34.4%. Tasks, fixtures,
+                  evaluators, manifest, and sanitized results are public.
                 </p>
                 <div className="run-meter static-meter" aria-hidden="true">
                   <span style={{ width: "100%" }} />
                 </div>
                 <div className="run-meta">
-                  <span>Rejected</span>
-                  <span>Not rescored</span>
-                  <span>Public-safe evidence</span>
+                  <span>35 pairs</span>
+                  <span>7 projects</span>
+                  <span>7 task families</span>
                 </div>
+              </article>
+
+              <article className="result-card confirmatory-card">
+                <div className="result-header">
+                  <div>
+                    <span className="result-label">
+                      Private-workload confirmation v5
+                    </span>
+                    <h3>38 / 40 candidate tasks passed</h3>
+                  </div>
+                  <span className="decision rejected">Rejected</span>
+                </div>
+                <p>
+                  Two candidate critical failures blocked the result despite
+                  40.0% lower token use. The run was preserved and never
+                  rescored. Its failure shaped the fresh v6 contract.
+                </p>
               </article>
 
               <article className="result-card zero-card">
@@ -361,9 +394,9 @@ export default function Home() {
               <h2>Remove waste without hiding risk.</h2>
             </div>
             <p>
-              The controller combines context, deterministic work, escalation,
-              delegation, and evidence. Each mechanism has an explicit failure
-              mode.
+              The controller combines context, deterministic work, lexical
+              completion, delegation, and evidence. Each mechanism has an
+              explicit failure mode.
             </p>
           </div>
 
@@ -464,9 +497,11 @@ export default function Home() {
           </div>
           <p className="scope-note">
             This is a feature and method comparison, not a performance claim
-            against those projects. Current performance evidence compares the
-            candidate policy with an always-Sol-High baseline on the published
-            task suite.
+            against those projects. Current performance evidence compares one
+            candidate policy with an always-Sol-High baseline. The 35-pair
+            synthetic suite is public and reproducible. The 40-pair private
+            shadow exposes sanitized per-run evidence, but its proprietary
+            fixtures are not independently inspectable.
           </p>
         </section>
 
@@ -498,6 +533,10 @@ export default function Home() {
                 <span aria-hidden="true">04</span>
                 Live Codex configuration left untouched
               </li>
+              <li>
+                <span aria-hidden="true">05</span>
+                Hook review and trust stay explicit
+              </li>
             </ul>
           </div>
           <p className="boundary-note">
@@ -516,13 +555,16 @@ export default function Home() {
             <span>the useful work survives.</span>
           </h2>
           <p>
-            Agent Goodput is a local alpha with one passing confirmation inside
-            a defined synthetic envelope. It is not installed into the live
-            Codex environment and has not been published.
+            Agent Goodput is a public alpha with one reproducible synthetic
+            confirmation and one passing private-workload shadow. It is not
+            installed into the live Codex environment.
           </p>
-          <a className="button button-primary" href="#top">
-            Back to the route
-            <span aria-hidden="true">↑</span>
+          <a
+            className="button button-primary"
+            href="https://github.com/cohenmax95/agent-goodput"
+          >
+            Inspect the repository
+            <span aria-hidden="true">↗</span>
           </a>
         </section>
       </main>
@@ -534,7 +576,11 @@ export default function Home() {
           </span>
           <span>Agent Goodput</span>
         </a>
-        <p>Apache-2.0 local alpha. No public release yet.</p>
+        <p>
+          <a href="https://github.com/cohenmax95/agent-goodput">
+            Apache-2.0 public alpha
+          </a>
+        </p>
         <p>Evidence before savings.</p>
       </footer>
     </>

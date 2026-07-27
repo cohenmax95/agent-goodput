@@ -49,7 +49,12 @@ Policy files are signed locally and linked to their parent digest. Each phase st
 
 ### Execution, deterministic completion, and selective escalation
 
-`codex_runner.py` executes a route in a fresh, isolated Codex home with user rules, plugins, hooks, browser tools, and multi-agent behavior disabled by default. It captures provider-reported token totals and completed item telemetry.
+`codex_runner.py` executes a route in a fresh, isolated Codex home with user
+rules, plugins, hooks, browser tools, and multi-agent behavior disabled by
+default. It captures provider-reported token totals and completed item
+telemetry. It can also count completed sampling-response cycles from
+`token_count` events in the disposable isolated rollout. It retains only the
+count, never the rollout content.
 
 `escalation.py` builds a repair packet from failed obligations only. A stronger
 route does not receive raw prior reasoning or unrelated output.

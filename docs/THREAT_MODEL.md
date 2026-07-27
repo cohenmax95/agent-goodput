@@ -80,6 +80,8 @@ Controls:
 - raw benchmark outputs off by default.
 - task instructions, repair packets, and completion workspaces kept in
   temporary execution paths and removed during normal cleanup.
+- response-cycle attribution reads rollout events only from the isolated
+  temporary Codex home and retains only an aggregate count.
 
 If the host process is killed before cleanup, operating-system temporary files
 can survive until the host removes them. Private benchmarks should still run on
@@ -95,6 +97,8 @@ Controls:
 
 - dry-run by default;
 - per-file ownership hashes;
+- installed hooks pinned to the supported Python interpreter used for install;
+- refusal to follow symlinked plugin, marketplace, or managed-file paths;
 - refusal to overwrite unmanaged or modified files;
 - refusal to uninstall without a valid ownership ledger;
 - preservation of conflicting marketplace entries.
@@ -121,6 +125,7 @@ Hooks can time out, be disabled, or fail.
 Controls:
 
 - hooks are treated as observation and workflow surfaces, not a security boundary;
+- every hook has an explicit short host timeout;
 - controller and benchmark gates remain independently callable;
 - hook failures do not block the agent;
 - the baseline policy remains safe when telemetry is missing.

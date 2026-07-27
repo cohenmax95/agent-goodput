@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import contextlib
 import json
+import shlex
 import shutil
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -41,15 +43,56 @@ def _hash_file(path: Path) -> str:
     return sha256_bytes(path.read_bytes())
 
 
+def _install_bytes(relative: str, source_path: Path) -> bytes:
+    content = source_path.read_bytes()
+    if relative != "hooks/hooks.json":
+        return content
+    document = json.loads(content)
+    expected = '/usr/bin/env python3 -B "$PLUGIN_ROOT/hooks/agent_goodput_hook.py"'
+    replacement = f'{shlex.quote(sys.executable)} -B "$PLUGIN_ROOT/hooks/agent_goodput_hook.py"'
+    commands = 0
+    for groups in document["hooks"].values():
+        for group in groups:
+            for hook in group["hooks"]:
+                if hook.get("type") != "command":
+                    continue
+                if hook.get("command") != expected:
+                    raise ValueError("unexpected packaged hook command")
+                hook["command"] = replacement
+                commands += 1
+    if commands == 0:
+        raise ValueError("packaged hooks contain no commands")
+    return (json.dumps(document, indent=2) + "\n").encode()
+
+
+def _install_hash(relative: str, source_path: Path) -> str:
+    return sha256_bytes(_install_bytes(relative, source_path))
+
+
+def _contains_symlink(path: Path, boundary: Path) -> bool:
+    relative = path.relative_to(boundary)
+    current = boundary
+    if current.is_symlink():
+        return True
+    for part in relative.parts:
+        current = current / part
+        if current.is_symlink():
+            return True
+    return False
+
+
 def _packaged_files() -> dict[str, Path]:
     package_root = Path(__file__).resolve().parent
     assets_root = package_root / "assets"
-    files = {
-        str(path.relative_to(assets_root)): path
-        for path in assets_root.rglob("*")
-        if path.is_file() and "__pycache__" not in path.parts
-    }
+    files: dict[str, Path] = {}
+    for path in assets_root.rglob("*"):
+        if path.is_symlink():
+            raise ValueError("packaged plugin bundle contains a symlink")
+        if path.is_file() and "__pycache__" not in path.parts:
+            files[str(path.relative_to(assets_root))] = path
     for path in package_root.glob("*.py"):
+        if path.is_symlink():
+            raise ValueError("packaged plugin bundle contains a symlink")
         files[f"src/agent_goodput/{path.name}"] = path
     return files
 
@@ -64,6 +107,8 @@ def _source_files(source: Path) -> dict[str, Path]:
         if not root.exists():
             continue
         for path in root.rglob("*"):
+            if path.is_symlink():
+                raise ValueError("plugin source contains a symlink")
             if (
                 path.is_file()
                 and "__pycache__" not in path.parts
@@ -124,6 +169,15 @@ def plan_install(
     marketplace_path = plugin_root / "marketplace.json"
     ledger_path = target / ".agent-goodput-install.json"
     source_files = bundle_files(source)
+    if _contains_symlink(target, home) or _contains_symlink(marketplace_path, home):
+        return InstallPlan(
+            source=str(source),
+            target=str(target),
+            marketplace=str(marketplace_path),
+            actions=(),
+            conflicts=("preserve symlinked plugin or marketplace path",),
+            apply_allowed=False,
+        )
     prior: dict[str, Any] = {}
     if ledger_path.exists():
         with ledger_path.open(encoding="utf-8") as stream:
@@ -133,6 +187,9 @@ def plan_install(
     conflicts: list[str] = []
     for relative, source_path in source_files.items():
         destination = target / relative
+        if _contains_symlink(destination, home):
+            conflicts.append(f"preserve symlinked path: {relative}")
+            continue
         if not destination.exists():
             actions.append(f"create {relative}")
             continue
@@ -140,7 +197,7 @@ def plan_install(
         expected_prior = prior_hashes.get(relative)
         if expected_prior is None or current_hash != expected_prior:
             conflicts.append(f"preserve modified or unmanaged file: {relative}")
-        elif current_hash != _hash_file(source_path):
+        elif current_hash != _install_hash(relative, source_path):
             actions.append(f"update {relative}")
     marketplace = _load_marketplace(marketplace_path)
     matching = [item for item in marketplace["plugins"] if item.get("name") == "agent-goodput"]
@@ -178,8 +235,11 @@ def install(
     hashes: dict[str, str] = {}
     for relative, source_path in source_files.items():
         destination = target / relative
+        if _contains_symlink(destination, Path(agents_home).expanduser().resolve()):
+            raise RuntimeError("installation path became symlinked; no further files were changed")
         destination.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(source_path, destination)
+        destination.write_bytes(_install_bytes(relative, source_path))
+        shutil.copymode(source_path, destination)
         hashes[relative] = _hash_file(destination)
     ledger = {
         "schema_version": 1,
@@ -207,6 +267,15 @@ def uninstall(
     conflicts: list[str] = []
     actions: list[str] = []
     hashes: dict[str, str] = {}
+    if _contains_symlink(target, home) or _contains_symlink(marketplace_path, home):
+        return InstallPlan(
+            source="",
+            target=str(target),
+            marketplace=str(marketplace_path),
+            actions=(),
+            conflicts=("preserve symlinked plugin or marketplace path",),
+            apply_allowed=False,
+        )
     if ledger_path.exists():
         with ledger_path.open(encoding="utf-8") as stream:
             hashes = dict(json.load(stream).get("files", {}))
@@ -214,6 +283,9 @@ def uninstall(
         conflicts.append("install ledger is missing; ownership cannot be proven")
     for relative, expected_hash in hashes.items():
         path = target / relative
+        if _contains_symlink(path, home):
+            conflicts.append(f"preserve symlinked path: {relative}")
+            continue
         if not path.exists():
             continue
         if _hash_file(path) != expected_hash:

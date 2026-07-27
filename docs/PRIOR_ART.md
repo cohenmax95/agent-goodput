@@ -25,17 +25,18 @@ The original contribution claimed by this project is the implementation and inte
 ## Main references
 
 - [RTK at inspected commit](https://github.com/rtk-ai/rtk/tree/1d6798de8aee0940b490719153e7554845f8f43c)
-- [Headroom at inspected commit](https://github.com/headroomlabs-ai/headroom/tree/aebe19539fc75b4fbfd2dc6a97770ed2b9475ed9)
+- [Headroom at inspected commit](https://github.com/headroomlabs-ai/headroom/tree/904bc675b35072dc61191963cbe485fa692927d1)
 - [Repowise at inspected commit](https://github.com/repowise-dev/repowise/tree/82cd55b0fc6a4fd823c034f14045a660c8113f71)
 - [CodexZero at inspected commit](https://github.com/Retro2512/CodexZero/tree/4304774a944a842703b00ada2c533c9872ddd6bb)
 - [Crucible at inspected commit](https://github.com/Siddhant-Goswami/Crucible/tree/156a4b899a61d987360458ba7e8287fa1e19a61f)
 - [Agent-as-a-Router at inspected commit](https://github.com/LanceZPF/agent-as-a-router/tree/e43839edb0d5d0a9feec2f7078019406ab4d64bd)
 - [GitHub Next agentic-ops at inspected commit](https://github.com/githubnext/agentic-ops/tree/1115d071436896bba2115678d453c0fa545d7345)
 - [ECC at inspected commit](https://github.com/affaan-m/ECC/tree/6a9f075cd97c139a5f7e84e1e3f2c9ab095adf64)
-- [Token Optimizer at inspected commit](https://github.com/alexgreensh/token-optimizer/tree/19f90a26878ec871a1b2668ca80d4698a3173f11)
+- [Token Optimizer at inspected commit](https://github.com/alexgreensh/token-optimizer/tree/bc0e2bdfb8ac5a72ce455121197ad8d33242130a)
 - [Portable subagent configs at inspected commit](https://github.com/nsEytgXm/subagents_configs/tree/36bbd6a805b2122217b59db99f8868d69c766b48)
 - [JFrog Boost public repository](https://github.com/jfrog/boost/tree/2ab14fd0feca752bb5e9e899ee4d687ebb222f17), used as evidence only
 - [GitHub research on token efficiency in agentic workflows](https://github.blog/ai-and-ml/github-copilot/improving-token-efficiency-in-github-agentic-workflows/)
+- [OpenAI Codex issue #35050 on bounded Code Mode batching](https://github.com/openai/codex/issues/35050)
 - [OpenAI Codex skills](https://learn.chatgpt.com/docs/build-skills)
 - [OpenAI Codex hooks](https://learn.chatgpt.com/docs/hooks)
 - [OpenAI Codex subagents](https://learn.chatgpt.com/docs/agent-configuration/subagents)
@@ -52,4 +53,3 @@ At the snapshot date:
 - agentic-ops and subagents_configs did not expose an SPDX license through the GitHub repository API.
 
 This summary is informational and not legal advice. Check the current upstream license before reuse.
-

@@ -19,6 +19,8 @@ def report() -> dict[str, object]:
         "reasoning_tokens": 0,
         "calls": 1,
         "call_count_source": "agent-run",
+        "response_cycles": 2,
+        "response_cycle_source": "codex:token-count-events",
         "source": "codex",
     }
     return {
@@ -121,7 +123,11 @@ class SanitizerTests(unittest.TestCase):
         self.assertEqual(2, escalation["attempt_count"])
         self.assertEqual(25, escalation["repair_elapsed_ms"])
         self.assertEqual(100, escalation["repair_usage"]["input_tokens"])
+        self.assertEqual(2, escalation["repair_usage"]["response_cycles"])
         self.assertNotIn("private_note", escalation)
+        usage = public["outcomes"][0]["usage"]
+        self.assertEqual(2, usage["response_cycles"])
+        self.assertEqual("codex:token-count-events", usage["response_cycle_source"])
         completion = public["outcomes"][0]["metadata"]["deterministic_completion"]
         self.assertTrue(completion["completed"])
         self.assertEqual(1, completion["added_path_count"])

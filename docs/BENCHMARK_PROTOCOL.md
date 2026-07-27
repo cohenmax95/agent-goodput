@@ -70,7 +70,8 @@ If a task or evaluator changes after results are viewed, increment the manifest 
   reasoning or tool output. A clean retry receives the original task contract
   and no targeted failure packet.
 - The complete repaired answer is evaluated from scratch. Previously passed fields are not assumed to remain correct.
-- Initial and repair input, cached input, output, reasoning, elapsed time, and agent-run counts are added together.
+- Initial and repair input, cached input, output, reasoning, elapsed time,
+  agent-run counts, and response cycles when available are added together.
 - A repair with missing or mixed usage cannot support promotion.
 - Baseline and candidate repair behavior must be stated explicitly in the manifest and result.
 

@@ -9,7 +9,10 @@ htmlcov/
 .venv/
 dist/
 build/
+!site/build/
+!site/build/sites-vite-plugin.ts
 *.egg-info/
+*.tsbuildinfo
 .private/
 .agent-goodput/
 site/data/private/

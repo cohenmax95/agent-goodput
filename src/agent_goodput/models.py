@@ -90,6 +90,8 @@ class TokenUsage:
     reasoning_tokens: int = 0
     calls: int = 1
     call_count_source: str = "agent-run"
+    response_cycles: int | None = None
+    response_cycle_source: str | None = None
     source: str = "reported"
 
     def __post_init__(self) -> None:
@@ -102,6 +104,8 @@ class TokenUsage:
         ):
             if getattr(self, name) < 0:
                 raise ValueError(f"{name} cannot be negative")
+        if self.response_cycles is not None and self.response_cycles < 0:
+            raise ValueError("response_cycles cannot be negative")
         if self.cached_input_tokens > self.input_tokens:
             raise ValueError("cached_input_tokens cannot exceed input_tokens")
 
@@ -210,6 +214,16 @@ class RunOutcome:
                 reasoning_tokens=int(usage_raw.get("reasoning_tokens", 0)),
                 calls=int(usage_raw.get("calls", 1)),
                 call_count_source=str(usage_raw.get("call_count_source", "agent-run")),
+                response_cycles=(
+                    int(usage_raw["response_cycles"])
+                    if usage_raw.get("response_cycles") is not None
+                    else None
+                ),
+                response_cycle_source=(
+                    str(usage_raw["response_cycle_source"])
+                    if usage_raw.get("response_cycle_source") is not None
+                    else None
+                ),
                 source=str(usage_raw.get("source", "reported")),
             ),
             obligations=tuple(

@@ -9,8 +9,13 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  quality:
+  test:
+    name: Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -21,11 +26,25 @@ jobs:
           - "3.13"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e . "pytest>=8.3"
+      - run: pytest
+
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
           cache: pip
 
       - run: python -m pip install --upgrade pip
@@ -33,15 +52,34 @@ jobs:
       - run: ruff check .
       - run: ruff format --check .
       - run: mypy src
-      - run: pytest
+      - run: bandit -q -r src
       - run: python -m build
-      - name: Validate plugin JSON
+      - name: Validate public JSON
         run: |
-          python -m json.tool .codex-plugin/plugin.json >/dev/null
-          python -m json.tool hooks/hooks.json >/dev/null
-          python -m json.tool config/default-policy.json >/dev/null
-          python -m json.tool benchmarks/manifests/codex-smoke-v1.json >/dev/null
-          python -m json.tool benchmarks/manifests/codex-full-v1.json >/dev/null
-          python -m json.tool benchmarks/manifests/codex-confirmatory-v1.json >/dev/null
-          python -m json.tool benchmarks/manifests/codex-confirmatory-v2.json >/dev/null
-          python -m json.tool benchmarks/schemas/evidence-answer.schema.json >/dev/null
+          find . -type f -name '*.json' \
+            -not -path './.git/*' \
+            -not -path './build/*' \
+            -not -path './dist/*' \
+            -not -path './site/dist/*' \
+            -not -path './site/node_modules/*' \
+            -print0 |
+            xargs -0 -n 1 python -m json.tool >/dev/null
+
+  site:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: site
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm audit --audit-level=high

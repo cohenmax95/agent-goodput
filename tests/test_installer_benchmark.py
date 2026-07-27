@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -72,7 +73,9 @@ class InstallerTests(unittest.TestCase):
                 for hook in group["hooks"]
             ]
             self.assertTrue(commands)
-            self.assertTrue(all("python3 -B " in command for command in commands))
+            expected_prefix = f"{shlex.quote(sys.executable)} -B "
+            self.assertTrue(all(command.startswith(expected_prefix) for command in commands))
+            self.assertFalse(install(source, home, apply=False).actions)
             payload = {
                 "hook_event_name": "UserPromptSubmit",
                 "session_id": "test-session",
@@ -118,6 +121,40 @@ class InstallerTests(unittest.TestCase):
             self.assertFalse(removal.apply_allowed)
             self.assertTrue(removal.conflicts)
             self.assertTrue(path.exists())
+
+    def test_symlinked_plugin_target_is_refused(self) -> None:
+        source = Path(__file__).resolve().parents[1]
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            home = root / ".agents"
+            outside = root / "outside"
+            outside.mkdir()
+            plugins = home / "plugins"
+            plugins.mkdir(parents=True)
+            (plugins / "agent-goodput").symlink_to(outside, target_is_directory=True)
+            plan = install(source, home, apply=False)
+            self.assertFalse(plan.apply_allowed)
+            self.assertIn("symlinked", plan.conflicts[0])
+            with self.assertRaisesRegex(RuntimeError, "conflicts"):
+                install(source, home, apply=True)
+            self.assertFalse(any(outside.iterdir()))
+
+    def test_symlinked_managed_file_is_preserved_on_uninstall(self) -> None:
+        source = Path(__file__).resolve().parents[1]
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            home = root / ".agents"
+            install(source, home, apply=True)
+            target = home / "plugins" / "agent-goodput"
+            path = target / "hooks" / "hooks.json"
+            outside = root / "outside.json"
+            outside.write_text(path.read_text(encoding="utf-8"), encoding="utf-8")
+            path.unlink()
+            path.symlink_to(outside)
+            plan = uninstall(home, apply=False)
+            self.assertFalse(plan.apply_allowed)
+            self.assertTrue(any("symlinked" in conflict for conflict in plan.conflicts))
+            self.assertTrue(outside.exists())
 
 
 class BenchmarkTests(unittest.TestCase):

@@ -7,7 +7,7 @@ import subprocess  # nosec B404
 import tempfile
 import time
 from collections import Counter
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 
@@ -25,6 +25,7 @@ _DEFAULT_DISABLED_FEATURES = (
     "plugins",
     "skill_search",
 )
+_MAX_ROLLOUT_SCAN_BYTES = 64 * 1024 * 1024
 
 
 @dataclass(frozen=True)
@@ -145,8 +146,10 @@ def parse_codex_events(
             cached_input_tokens=usage.get("cached_input_tokens", 0),
             output_tokens=usage.get("output_tokens", 0),
             reasoning_tokens=usage.get("reasoning_tokens", 0),
-            calls=usage.get("model_calls", 1),
-            call_count_source=("codex:model_calls" if model_calls_reported else "agent-run"),
+            calls=1,
+            call_count_source="agent-run",
+            response_cycles=(usage.get("model_calls") if model_calls_reported else None),
+            response_cycle_source=("codex:model_calls" if model_calls_reported else None),
             source="codex" if usage else "missing",
         ),
         event_count,
@@ -154,6 +157,36 @@ def parse_codex_events(
         dict(sorted(item_types.items())),
         {event: dict(sorted(counts.items())) for event, counts in sorted(item_events.items())},
     )
+
+
+def count_rollout_response_cycles(codex_home: Path) -> int | None:
+    total_bytes = 0
+    cycles = 0
+    session_root = codex_home / "sessions"
+    if not session_root.is_dir():
+        return None
+    for rollout in sorted(session_root.rglob("*.jsonl")):
+        if rollout.is_symlink() or not rollout.is_file():
+            continue
+        total_bytes += rollout.stat().st_size
+        if total_bytes > _MAX_ROLLOUT_SCAN_BYTES:
+            return None
+        with rollout.open(encoding="utf-8", errors="replace") as stream:
+            for line in stream:
+                try:
+                    record = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if not isinstance(record, dict) or record.get("type") != "event_msg":
+                    continue
+                payload = record.get("payload")
+                if (
+                    isinstance(payload, dict)
+                    and payload.get("type") == "token_count"
+                    and payload.get("info") is not None
+                ):
+                    cycles += 1
+    return cycles or None
 
 
 class CodexRunner:
@@ -201,17 +234,18 @@ class CodexRunner:
         timeout_seconds: int = 900,
         output_schema: str | Path | None = None,
         isolated: bool = True,
+        capture_response_cycles: bool = True,
         disabled_features: tuple[str, ...] = _DEFAULT_DISABLED_FEATURES,
     ) -> CodexExecution:
         workspace = Path(cwd).expanduser().resolve()
         with tempfile.TemporaryDirectory(prefix="agent-goodput-codex-") as temporary:
             scratch = Path(temporary)
             answer_path = scratch / "answer.txt"
+            codex_home = self._isolated_home(scratch) if isolated else None
             command = [
                 str(self.codex),
                 "exec",
                 "--json",
-                "--ephemeral",
                 "--strict-config",
                 "--skip-git-repo-check",
                 "--sandbox",
@@ -229,6 +263,8 @@ class CodexRunner:
                 "--config",
                 'approval_policy="never"',
             ]
+            if codex_home is None or not capture_response_cycles:
+                command.append("--ephemeral")
             for feature in disabled_features:
                 command.extend(["--disable", feature])
             if isolated:
@@ -244,8 +280,8 @@ class CodexRunner:
                 command.extend(["--output-schema", str(Path(output_schema).resolve())])
             command.extend(["--output-last-message", str(answer_path), "-"])
             environment = os.environ.copy()
-            if isolated:
-                environment["CODEX_HOME"] = str(self._isolated_home(scratch))
+            if codex_home is not None:
+                environment["CODEX_HOME"] = str(codex_home)
             started = time.monotonic()
             timed_out = False
             try:
@@ -276,6 +312,24 @@ class CodexRunner:
                 item_types,
                 item_events,
             ) = parse_codex_events(stdout)
+            if codex_home is not None and capture_response_cycles:
+                response_cycles = count_rollout_response_cycles(codex_home)
+                if response_cycles is not None:
+                    if (
+                        usage.response_cycles is not None
+                        and usage.response_cycles != response_cycles
+                    ):
+                        usage = replace(
+                            usage,
+                            response_cycles=None,
+                            response_cycle_source="conflicting-codex-signals",
+                        )
+                    else:
+                        usage = replace(
+                            usage,
+                            response_cycles=response_cycles,
+                            response_cycle_source="codex:token-count-events",
+                        )
             return CodexExecution(
                 route=route,
                 runtime_version=self.runtime_version,

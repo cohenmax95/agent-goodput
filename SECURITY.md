@@ -26,7 +26,8 @@ The project aims to:
 - fail open on hook errors because hooks are not a security boundary;
 - preserve a proven baseline until paired quality gates pass;
 - roll back on critical candidate failure;
+- pin installed hooks to the supported Python interpreter used for install;
+- refuse symlinked plugin and marketplace destination paths;
 - avoid overwriting or deleting files the installer cannot prove it owns.
 
 See [the threat model](docs/THREAT_MODEL.md) for assumptions and exclusions.
-

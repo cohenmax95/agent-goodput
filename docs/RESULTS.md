@@ -1,5 +1,121 @@
 # Confirmation results
 
+## Private real-workload confirmation v6
+
+Benchmark: `real-workload-confirmatory-v6-a12a28016bd1`
+
+Disposition: passed every preregistered gate and is eligible for a canary only
+inside the tested task envelope.
+
+| Measure | Always Sol High | Candidate policy | Difference |
+| --- | ---: | ---: | ---: |
+| Verified tasks | 32 of 40 | 40 of 40 | Candidate passed 8 more |
+| Critical failures | 8 | 0 | Candidate had 8 fewer |
+| Raw tokens | 2,588,752 | 1,562,524 | 39.6% fewer |
+| Input tokens | 2,546,773 | 1,537,065 | 39.6% fewer |
+| Uncached input tokens | 586,325 | 444,969 | 24.1% fewer |
+| Output tokens | 41,979 | 25,459 | 39.4% fewer |
+| Elapsed time | 1,387.4 seconds | 798.0 seconds | 42.5% less |
+| Verified goodput | 57.23 | 105.56 | 84.4% higher |
+| Codex agent-run invocations | 40 | 40 | Equal |
+
+Paired mean raw-token savings was 38.6%. The 95% paired bootstrap interval was
+32.6% to 44.3%, above the frozen 10% lower-bound threshold. The candidate's
+paired quality delta was 20 percentage points, with a 95% interval from 7.5 to
+32.5 percentage points.
+
+### Tested policy
+
+The baseline used Sol High for all 40 tasks. The candidate policy used:
+
+- Terra Medium for 25 bounded, low-risk read tasks;
+- Sol High for 15 safety-sensitive tasks;
+- no model repair or retry.
+
+Two candidate answers omitted task-explicit lexical evidence. The bounded local
+compiler added two evidence certificates in 2 milliseconds total, without an
+additional Codex run. It could use only verifier-reported paths or facts
+already present in the task or answer, only bounded files safely inside the
+workspace, and only trusted lexical matches. The unchanged evaluator then
+revalidated the complete answer. Hidden facts, semantic failures, unsafe paths,
+and unsupported conclusions remained ineligible.
+
+### Scope
+
+The 40 pairs span eight task families and four pseudonymous private projects
+derived from day-to-day application codebases. Proprietary fixtures,
+instructions, source paths, project names, and raw answers are not published.
+The result is therefore practical shadow evidence, not an independently
+reproducible benchmark.
+
+Every route received the same task contract and equivalent permissions. Every
+execution used a fresh workspace and isolated Codex home. Each run recorded
+exact Codex usage and exactly one agent-run invocation. This is not a claim
+about the number of internal response cycles. The frozen v6 runner predates
+Agent Goodput's response-cycle counter.
+
+### Provenance
+
+- Canonical manifest SHA-256:
+  `ff1d4767981527696b123e759117b7f1d8be7d145995c2717283dc74faa4a6e5`
+- Benchmark bundle SHA-256:
+  `98bb2820d293606dfeb0543cf2e72b9c3f16b2aa2e9ef3f2de33aa2a3425f748`
+- Benchmark source Git tree:
+  `8c161524d7f0b5a05bd85ba96e9d3e5978860b8c`
+- Public benchmark source commit:
+  [`4c657b98763a53deb448715037747191298be6ad`](https://github.com/cohenmax95/agent-goodput/commit/4c657b98763a53deb448715037747191298be6ad)
+- Codex version: `codex-cli 0.146.0-alpha.3.1`
+- Codex binary SHA-256:
+  `6d8be49e49751554df16572369e636cbe02c84b208cad3dc35528c846eeca223`
+- Python: 3.13.13
+- Operating system: macOS on arm64
+- Started: 2026-07-27 01:51:28 UTC
+- Completed: 2026-07-27 02:27:54 UTC
+- Private source report SHA-256:
+  `1e3687a33f039d46878a98cb2fab8616a5bb01f092c3f7d48adeb29abc1d7374`
+- Sanitizer source SHA-256:
+  `c9801b60fa02c6d1c03d2fd8f0dd67e9143fca031455aed3ec30d0e2a090c54a`
+- Public payload SHA-256:
+  `d099e8e065fa110b235e7913e4f9001b3cbe3ffb2757a110f4a43c0da5f97b7a`
+- Sanitized report file SHA-256:
+  `b4167bcff633e3e670f100157d678d44a5225ccc0e9dbb37292017a5c02818cd`
+
+The sanitized report is
+[`benchmarks/results/real-workload-confirmatory-v6.json`](../benchmarks/results/real-workload-confirmatory-v6.json).
+It contains per-run routes, exact usage, call counts, timing, obligation
+outcomes, randomized order, and provenance hashes. Obligation evidence is
+hashed, and private paths and raw answers are absent.
+
+The clean public history begins with the exact source tree used for v6. Its Git
+tree object matches the value above even though the private development commit
+history is not published.
+
+### Response-cycle telemetry smoke
+
+After v6 was frozen, a bounded read smoke on `codex-cli
+0.146.0-alpha.3.1` recorded two completed response cycles inside one Codex
+agent-run invocation. The command completed successfully with exact Codex token
+usage, and the answer matched the inspected project field. Only the aggregate
+cycle count survived; the isolated rollout and temporary Codex home were
+deleted. This validates the counter's runtime integration, not a savings or
+quality claim.
+
+### Claim boundary
+
+The supported claim is:
+
+> On this preregistered 40-pair shadow derived from four private application
+> codebases, the Agent Goodput candidate passed all 40 task contracts, compared
+> with 32 for always using Sol High, while using 39.6% fewer raw tokens overall.
+> The 95% paired savings interval was 32.6% to 44.3%.
+
+This result does not establish that Terra Medium is generally better than Sol
+High. It tests one selective policy: bounded reads may use Terra Medium,
+safety-sensitive work stays on Sol High, and task-explicit mechanical evidence
+gaps may be completed by a fail-closed local compiler. A new workload bucket
+still needs its own shadow evidence and evaluator before canary use. No live
+Codex policy was changed.
+
 ## Confirmation v2
 
 Benchmark: `codex-confirmatory-v2-35d789ed35b5`

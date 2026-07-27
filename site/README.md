@@ -1,7 +1,7 @@
 # Agent Goodput site
 
-This is the local evidence site for Agent Goodput. It is intentionally separate
-from the Python package and is not deployed.
+This is the evidence site for Agent Goodput. It is intentionally separate from
+the Python package so the proof surface can be built and tested independently.
 
 ## Local use
 

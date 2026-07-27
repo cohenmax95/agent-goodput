@@ -1,0 +1,64 @@
+name: Benchmark result
+description: Share a reproducible result or a failed replication.
+title: "[Benchmark]: "
+labels:
+  - benchmark
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Negative results are useful. Include every failed attempt in the token
+        denominator and publish only synthetic or sanitized evidence.
+  - type: input
+    id: commit
+    attributes:
+      label: Agent Goodput commit
+      description: Use the full commit SHA.
+    validations:
+      required: true
+  - type: input
+    id: runtime
+    attributes:
+      label: Runtime versions
+      description: Include Codex, Python, and operating system versions.
+    validations:
+      required: true
+  - type: textarea
+    id: suite
+    attributes:
+      label: Suite and scope
+      description: Describe pair count, project count, task families, and evaluator.
+    validations:
+      required: true
+  - type: textarea
+    id: quality
+    attributes:
+      label: Quality result
+      description: Include pass counts, critical failures, and the paired quality interval.
+    validations:
+      required: true
+  - type: textarea
+    id: consumption
+    attributes:
+      label: Consumption result
+      description: Include raw, cached, uncached, and output tokens plus the paired savings interval.
+    validations:
+      required: true
+  - type: textarea
+    id: artifacts
+    attributes:
+      label: Reproduction artifacts
+      description: Link the manifest, fixtures, evaluator, sanitized report, and hashes.
+    validations:
+      required: true
+  - type: checkboxes
+    id: integrity
+    attributes:
+      label: Integrity checks
+      options:
+        - label: Every reported pair has provider-reported usage.
+          required: true
+        - label: Failed attempts remain in the result.
+          required: true
+        - label: The report contains no private prompts, answers, paths, credentials, or proprietary fixtures.
+          required: true

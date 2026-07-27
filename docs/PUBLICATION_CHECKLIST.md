@@ -18,8 +18,11 @@ Do not publish from an automated task. Publication requires an explicit human de
 - [x] Wheel and source distribution build.
 - [x] Plugin, hook, policy, benchmark, and answer-schema JSON validate.
 - [x] Installer dry-run, isolated install, conflict refusal, safe uninstall, and modified-file preservation pass.
+- [x] Installer refuses symlinked plugin, marketplace, and managed-file paths.
 - [x] Evidence hash-chain tamper and atomicity tests pass.
 - [x] Hook privacy tests pass.
+- [x] Response-cycle attribution passes unit and live isolated-runtime checks
+      without retaining rollout content.
 - [x] Site lint, build, and rendered HTML tests pass.
 
 ## Benchmark
@@ -47,9 +50,9 @@ Do not publish from an automated task. Publication requires an explicit human de
 - [x] Private confirmatory v5 is preserved as a rejected result.
 - [x] No proprietary fixture, instruction, source path, raw answer, or project name enters Git.
 - [x] The missing selective-repair execution link has unit and live fault-injection coverage.
-- [ ] A fresh preregistered private-workload confirmation passes after bounded deterministic lexical completion replaces stochastic model repair.
-- [ ] The sanitized private-workload report passes privacy, secret, and provenance checks.
-- [ ] Public claims distinguish reproducible synthetic evidence from non-public private-workload evidence.
+- [x] A fresh preregistered private-workload confirmation passes after bounded deterministic lexical completion replaces stochastic model repair.
+- [x] The sanitized private-workload report passes privacy, secret, and provenance checks.
+- [x] Public claims distinguish reproducible synthetic evidence from non-public private-workload evidence.
 
 ## Safety
 

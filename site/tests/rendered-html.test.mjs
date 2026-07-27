@@ -35,10 +35,13 @@ test("server-renders the evidence-first product page", async () => {
   );
   assert.match(html, /Spend less reasoning\./);
   assert.match(html, /Keep the result\./);
+  assert.match(html, /39\.6%/);
   assert.match(html, /29\.8%/);
   assert.match(html, /Rejected/);
-  assert.match(html, /35 paired tasks/);
+  assert.match(html, /40 paired tasks/);
+  assert.match(html, /35 \/ 35 on both routes/);
   assert.match(html, /Canary eligible/);
+  assert.match(html, /not an independently reproducible benchmark/);
   assert.match(html, /Failed work/);
   assert.match(html, /0 goodput/);
   assert.match(html, /Every gate passes, or nothing changes\./);
@@ -60,8 +63,9 @@ test("keeps proof claims and accessibility safeguards in source", async () => {
   ]);
 
   assert.match(page, /feature and method comparison, not a performance claim/);
-  assert.match(page, /Current performance evidence compares/);
-  assert.match(page, /not installed into the live\s+Codex environment/);
+  assert.match(page, /Current performance evidence compares one/);
+  assert.match(page, /not\s+installed into the live\s+Codex environment/);
+  assert.match(page, /public and reproducible/);
   assert.match(page, /aria-label="Primary navigation"/);
   assert.match(page, /role="region"/);
   assert.match(css, /prefers-reduced-motion:\s*reduce/);

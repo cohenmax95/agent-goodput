@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use Agent Goodput in published work, cite this software release."
+title: "Agent Goodput"
+type: software
+authors:
+  - family-names: "Cohen"
+    given-names: "Max"
+version: "0.1.0-alpha.1"
+date-released: 2026-07-26
+repository-code: "https://github.com/cohenmax95/agent-goodput"
+url: "https://github.com/cohenmax95/agent-goodput"
+license: "Apache-2.0"

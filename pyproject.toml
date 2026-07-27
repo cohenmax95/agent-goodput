@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "agent-goodput"
-version = "0.1.0"
+version = "0.1.0a1"
 description = "Quality-gated optimization for agent model, context, tool, and delegation choices."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -28,9 +28,15 @@ classifiers = [
 ]
 dependencies = []
 
+[project.urls]
+Documentation = "https://github.com/cohenmax95/agent-goodput/tree/main/docs"
+Issues = "https://github.com/cohenmax95/agent-goodput/issues"
+Repository = "https://github.com/cohenmax95/agent-goodput"
+
 [project.optional-dependencies]
 tokens = ["tiktoken>=0.9"]
 dev = [
+  "bandit>=1.9",
   "build>=1.2",
   "mypy>=1.13",
   "pytest>=8.3",

@@ -40,6 +40,12 @@ a {
   text-decoration: none;
 }
 
+footer p a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+}
+
 button,
 a {
   -webkit-tap-highlight-color: transparent;
@@ -1128,8 +1134,12 @@ a:focus-visible,
 }
 
 .scope-section .section-heading > p,
-.scope-note {
+.scope-section .scope-note {
   color: #555a56;
+}
+
+.featured-result .scope-note {
+  color: #a8ada9;
 }
 
 .scope-table {

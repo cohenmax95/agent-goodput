@@ -1,0 +1,89 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.repository == 'cohenmax95/agent-goodput'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Verify tag and package version
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          python - <<'PY'
+          import os
+          import re
+          import tomllib
+
+          with open("pyproject.toml", "rb") as stream:
+              version = tomllib.load(stream)["project"]["version"]
+          match = re.fullmatch(r"(.+?)(a|b|rc)(\d+)", version)
+          if match:
+              labels = {"a": "alpha", "b": "beta", "rc": "rc"}
+              expected = f"v{match[1]}-{labels[match[2]]}.{match[3]}"
+          else:
+              expected = f"v{version}"
+          if os.environ["RELEASE_TAG"] != expected:
+              raise SystemExit(
+                  f"tag {os.environ['RELEASE_TAG']!r} does not match package {expected!r}"
+              )
+          PY
+
+      - name: Build and inspect distributions
+        run: |
+          python -m pip install "build==1.5.0" "twine==6.2.0"
+          python -m build
+          python -m twine check dist/*
+          (
+            cd dist
+            sha256sum agent_goodput-*.whl agent_goodput-*.tar.gz > SHA256SUMS
+          )
+
+      - name: Attest release distributions
+        uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373 # v4.1.1
+        with:
+          subject-checksums: dist/SHA256SUMS
+
+      - name: Create or update the prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          release_version="${RELEASE_TAG#v}"
+          release_notes="docs/RELEASE_NOTES_${release_version}.md"
+          test -f "$release_notes"
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release edit "$RELEASE_TAG" \
+              --title "Agent Goodput $release_version" \
+              --notes-file "$release_notes" \
+              --prerelease
+            gh release upload "$RELEASE_TAG" dist/* --clobber
+          else
+            gh release create "$RELEASE_TAG" dist/* \
+              --title "Agent Goodput $release_version" \
+              --notes-file "$release_notes" \
+              --prerelease \
+              --verify-tag
+          fi
