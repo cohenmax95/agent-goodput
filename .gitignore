@@ -15,10 +15,13 @@ build/
 *.tsbuildinfo
 .private/
 .agent-goodput/
+.netlify/
 site/data/private/
 site/.next/
+site/.netlify/
 site/.vinext/
 site/.wrangler/
 site/dist/
 site/node_modules/
+site/out/
 site/.git/

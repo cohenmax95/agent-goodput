@@ -1,7 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  ...(process.env.AGENT_GOODPUT_STATIC_EXPORT === "1"
+    ? {
+        output: "export",
+      }
+    : {}),
 };
 
 export default nextConfig;

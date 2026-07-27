@@ -19,6 +19,12 @@ npm run lint
 npm test
 ```
 
+The tracked Netlify fallback builds the same page as a static export:
+
+```bash
+npm run build:static
+```
+
 The rendered-page test checks the core evidence language, honest claim boundary,
 and accessibility safeguards. Confirmatory numbers must be copied only from a
 sanitized public benchmark report.
