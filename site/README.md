@@ -3,6 +3,8 @@
 This is the evidence site for Agent Goodput. It is intentionally separate from
 the Python package so the proof surface can be built and tested independently.
 
+Production: <https://agent-goodput.netlify.app>
+
 ## Local use
 
 Requires Node.js 22.13 or newer.

@@ -29,6 +29,7 @@ classifiers = [
 dependencies = []
 
 [project.urls]
+Homepage = "https://agent-goodput.netlify.app"
 Documentation = "https://github.com/cohenmax95/agent-goodput/tree/main/docs"
 Issues = "https://github.com/cohenmax95/agent-goodput/issues"
 Repository = "https://github.com/cohenmax95/agent-goodput"

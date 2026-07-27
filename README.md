@@ -4,6 +4,8 @@ Save tokens only when verified work survives.
 
 Agent Goodput is a quality-gated control layer for Codex. It measures task risk, context cost, deterministic prework, model and effort routes, tool activity, delegation overhead, and verified outcomes. Cheaper policies begin in shadow and cannot affect live execution until paired evidence establishes quality noninferiority and token savings.
 
+[View the live evidence site](https://agent-goodput.netlify.app).
+
 ## Current evidence
 
 The project is alpha. A preregistered 40-pair shadow derived from four private

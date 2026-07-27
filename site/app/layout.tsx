@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://agent-goodput.netlify.app",
   ),
   title: {
     default: "Agent Goodput",
@@ -11,6 +11,13 @@ export const metadata: Metadata = {
   },
   description:
     "Save tokens only when verified work survives. A quality-gated control layer for Codex.",
+  alternates: {
+    canonical: "/",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",
@@ -19,6 +26,7 @@ export const metadata: Metadata = {
     title: "Agent Goodput",
     description: "Spend less reasoning. Keep the result.",
     type: "website",
+    url: "/",
     images: [
       {
         url: "/og-card.png",

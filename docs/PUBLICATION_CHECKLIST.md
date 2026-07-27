@@ -68,5 +68,5 @@ Do not publish from an automated task. Publication requires an explicit human de
 
 - [x] Max explicitly delegated the release decision after the quality and safety gates pass.
 - [x] Max explicitly authorized repository creation and push.
-- [ ] Remote visibility, owner, repository name, and license were confirmed.
+- [x] Remote visibility, owner, repository name, and license were confirmed.
 - [ ] First release is tagged as alpha.
